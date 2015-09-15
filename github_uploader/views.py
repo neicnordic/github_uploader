@@ -20,7 +20,7 @@ from decorators import require_nothing, require_login
 def top(request):
     return render(request, 'github_uploader/top.html')
 
-### Login ###
+### Login / logout ###
 
 def make_random_state():
     r = SystemRandom()
@@ -53,7 +53,7 @@ def authorize(request):
 @require_nothing
 def logout(request):
     if request.method == 'POST':
-        auth.logout(request.user)
+        auth.logout(request)
         messages.success(request, 'You are now logged out.')
         return redirect(top)
     return render(request, 'github_uploader/logout.html')

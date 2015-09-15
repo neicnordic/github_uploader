@@ -1,0 +1,17 @@
+{% extends "github_uploader/base.html" %}
+
+{% block title %} Login {% endblock %}
+
+{% block content %}
+<h1>Login</h1>
+
+<p>Login with your GitHub account to use this service.
+
+<form method="POST">
+{% csrf_token %}
+<input type="submit" value="Login with your GitHub account">
+</form>
+<br>
+
+
+{% endblock content %}

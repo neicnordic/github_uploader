@@ -1,0 +1,39 @@
+/* MESSAGES */
+
+#messages {
+    padding: 0px;
+    margin: 0 0 1em 0;
+}
+
+#messages li {
+    list-style-type: none;
+    padding: 1.5ex 1ex 1ex 5em;
+    margin: 0;
+}
+
+#messages .debug {
+    background-color: #e1e9ff;
+}
+
+#messages .info {
+    background-color: #d4e1ff;
+}
+
+#messages .success {
+    background-color: #E5FBB9;
+}
+
+#messages .warning {
+    background-color: #ffed83;
+}
+
+#messages .error {
+    background-color: #ffbebe;
+}
+
+/* GENERAL */
+
+.errortext {
+    color: #CA3403;
+} 
+

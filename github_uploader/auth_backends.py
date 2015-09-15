@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import backends
 from django.contrib.auth.models import User
-from django.utils import simplejson
+import json
 
 import requests
 from github import Github
@@ -48,11 +48,11 @@ class GitHubOrgMemberBackend(backends.RemoteUserBackend):
             state=saved_state,
             )
         headers = dict(Accept='application/json')
-        req = requests.post('https://github.com/login/oauth/access_token', params=params)
+        req = requests.post('https://github.com/login/oauth/access_token', params=params, headers=headers)
         if req.status_code != 200:
             return None
         
-        auth_info = simplejson.loads(req.text)
+        auth_info = json.loads(req.text)
         access_token = auth_info.get('access_token', None)
         token_type = auth_info.get('access_token', None)
         if not access_token:
@@ -68,7 +68,7 @@ class GitHubOrgMemberBackend(backends.RemoteUserBackend):
         
         member_of_org = False
         for org in github_user.get_orgs():
-            if org.login() == settings.GITHUB_ORGANIZATION:
+            if org.login == settings.GITHUB_ORGANIZATION:
                 member_of_org = True
                 break
         if not member_of_org:
@@ -81,7 +81,7 @@ class GitHubOrgMemberBackend(backends.RemoteUserBackend):
         user, created = User.objects.get_or_create(username=username)
         if created:
             user.save()
-        request_with_github_code.session.set('github_access_token', access_token)
+        request_with_github_code.session['github_access_token'] = access_token
 
         return user
     

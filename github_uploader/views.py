@@ -4,15 +4,15 @@ import re
 import string
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib import auth
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.forms import CharField, FileField, Form, ImageField
 from django.shortcuts import redirect, render
-from django.utils import simplejson
 from django.utils.translation import ugettext_lazy as _
 from urllib import urlencode
+import json
 
 from decorators import require_nothing, require_login
 
@@ -34,7 +34,7 @@ def login(request):
         request.session['github_oauth_state'] = state
         params = dict(
             client_id=settings.GITHUB_CLIENT_ID,
-            redirect_uri=reverse(authorize),
+            redirect_uri=request.build_absolute_uri(reverse(authorize)),
             scope="user:email,read:org",
             state=state)
         return redirect('https://github.com/login/oauth/authorize?' + urlencode(params))
@@ -42,9 +42,9 @@ def login(request):
 
 @require_nothing
 def authorize(request):
-    user = authenticate(request)
-    if user and user.is_active():
-        login(request, user)
+    user = auth.authenticate(request_with_github_code=request)
+    if user and user.is_active:
+        auth.login(request, user)
         messages.success(request, 'You are now logged in. Please enjoy responsibly.')
         return redirect(top)
     messages.error(request, 'Login failed.')
@@ -53,7 +53,7 @@ def authorize(request):
 @require_nothing
 def logout(request):
     if request.method == 'POST':
-        logout(request.user)
+        auth.logout(request.user)
         messages.success(request, 'You are now logged out.')
         return redirect(top)
     return render(request, 'github_uploader/logout.html')
@@ -121,7 +121,7 @@ def do_upload(f, filename, filename_mini):
 def upload(request):
     """Media upload view; form handling logic for media uploads."""
     existing = os.listdir(settings.MEDIA_ROOT)
-    context = dict(success=False, existing_json=simplejson.dumps(existing))
+    context = dict(success=False, existing_json=json.dumps(existing))
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -131,7 +131,7 @@ def upload(request):
                 form.cleaned_data['filename_mini'])
             context['filename'] = form.cleaned_data['filename']
             context['filename_mini'] = form.cleaned_data['filename_mini']
-            render(request, 'media_uploader/upload-success.html', context)
+            render(request, 'github_uploader/upload-success.html', context)
         context['errors'] = form._errors
-    return render(request, 'media_uploader/upload.html', context)
+    return render(request, 'github_uploader/upload.html', context)
                     

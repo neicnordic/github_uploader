@@ -1,3 +1,5 @@
+import logging
+
 from django.http import HttpResponseBadRequest
 
 class CheckAuthorization(object):
@@ -17,4 +19,6 @@ class CheckAuthorization(object):
         return HttpResponseBadRequest("Authorization check lacking in %s" %
                                       request.path)
         
-    
+class ExceptionLogging(object):
+    def process_exception(self, request, exception):
+        logging.exception('Exception handling request for ' + request.path)

@@ -22,6 +22,7 @@ from local_settings import STATIC_ROOT
 from local_settings import ALLOWED_HOSTS
 from local_settings import GITHUB_CLIENT_ID
 from local_settings import GITHUB_CLIENT_SECRET
+from local_settings import MEDIA_ROOT
 
 GITHUB_ORGANIZATION = 'neicnordic'
 
@@ -46,6 +47,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'github_uploader.middleware.CheckAuthorization',
+    'github_uploader.middleware.ExceptionLogging',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -90,6 +92,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
+MEDIA_URL = '/media/'
 STATIC_URL = '/assets/int/github/'
 
 LOGIN_URL = '/int/github/login/'

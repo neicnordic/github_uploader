@@ -142,8 +142,12 @@ def do_upload(access_token, content, filename):
     """PyGitHub does not yet support the create/update file API."""
     
     "PUT /repos/:owner/:repo/contents/:path"
-    url = 'https://api.github.com/repos/%s/%s/contents/media/%s'
-    url %= (settings.GITHUB_ORGANIZATION, settings.GITHUB_REPO, filename)
+    url = 'https://api.github.com/repos/%s/%s/contents/%s/%s'
+    url %= (
+        settings.GITHUB_ORGANIZATION, 
+        settings.GITHUB_REPO, 
+        settings.GITHUB_PATH, 
+        filename)
     
     headers = dict(Accept='application/vnd.github.v3+json')
     params = dict(
@@ -183,7 +187,7 @@ def upload(request):
     filename_miniature = form.cleaned_data['filename_miniature']
     
     params = dict(file=f)
-    success = True #do_upload(access_token, f, filename)
+    success = do_upload(access_token, f, filename)
     if not success:
         messages.error(request, 'File upload failed. Please check %s.' % tree_link)
         return render(request, 'github_uploader/upload.html', context)
@@ -193,7 +197,7 @@ def upload(request):
     if not filename_miniature:
         params.update(mini=filename_miniature)
         miniature = form.cleaned_data['miniature']
-        success = True #do_upload(access_token, miniature, filename_miniature)
+        success = do_upload(access_token, miniature, filename_miniature)
         if not success:
             messages.error(request, 'Miniature file upload failed. Please check %s.' % tree_link)
             return render(request, 'github_uploader/upload.html', context)

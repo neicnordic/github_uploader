@@ -9,8 +9,8 @@
 {% csrf_token %}
 <table>
 <tr>
-<td><label for="image">Image</label>: </td>
-<td><input type='file' name="image" id="image" size="100" /> </td>
+<td><label for="file">Image</label>: </td>
+<td><input type='file' name="file" id="file" size="100" /> </td>
 </tr>
 
 <tr>
@@ -109,7 +109,7 @@ Size:
 
     }
     
-    $("#image").change(function(){
+    $("#file").change(function(){
         updatePreview(this);
     });
 

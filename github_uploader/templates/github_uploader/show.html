@@ -14,7 +14,7 @@ In case they do not appear within a few minutes, you may want to check the
 
 <h2>Examples</h2>
 <p>There is <a href="https://github.com/neicnordic/neicweb#Adding_images_to_your_page">
-nice documentation with examples</a>on how to use your uploaded images and documents 
+nice documentation with examples</a> on how to use your uploaded images and documents 
 on the website README.wiki, as shown on <a href="https://github.com/neicnordic/neicweb"> 
 neicweb repository page </a> on GitHub. 
 
@@ -22,17 +22,21 @@ neicweb repository page </a> on GitHub.
 
 {% if mini %}
 <p>Clickable miniature sitting to the right on the page and links to larger version of the image:<br/>
+<code>
 &lt;a href="{{ MEDIA_URL }}{{ file }}"><br/>
 &lt;img class="smallpic" src="{{ MEDIA_URL }}{{ mini }}"><br/>
 &lt;/a>
+</code>
 
 <p>The same, but sits to the left:<br/>
+<code>
 &lt;a href="{{ MEDIA_URL }}{{ file }}"><br/>
 &lt;img class="smallpic-left" src="{{ MEDIA_URL }}{{ mini }}"><br/>
 &lt;/a>
+</code>
 {% endif %}
 
-<p>You can link a file like this <code>[[ /media/{{ file }} ]]</code> 
+<p>You can link your file like this <code>[[ /media/{{ file }} ]]</code> 
 or like this <code>[[ /media/{{ file }} | nice link text ]]</code>.  
 
 <h2>Review</h2>

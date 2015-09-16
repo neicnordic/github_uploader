@@ -138,7 +138,7 @@ class UploadForm(Form):
             
         return self.cleaned_data
 
-def do_upload(access_token, content, filename):
+def do_upload(access_token, file, filename):
     """PyGitHub does not yet support the create/update file API."""
     
     "PUT /repos/:owner/:repo/contents/:path"
@@ -152,7 +152,7 @@ def do_upload(access_token, content, filename):
     headers = dict(Accept='application/vnd.github.v3+json')
     params = dict(
         access_token=access_token,
-        content=base64.b64encode(content),
+        content=base64.b64encode(file.read()),
         message='Upload %s\n\nUploaded through media uploader service.' % filename,
         )
     r = requests.put(url, params=params, headers=headers)

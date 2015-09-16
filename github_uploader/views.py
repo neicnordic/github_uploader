@@ -154,7 +154,7 @@ def do_upload(access_token, content, filename):
     r = requests.put(url, params=params, headers=headers)
     return r.status_code == 200
 
-tree_url = ("https://github.com/%s/%s/tree/master/%s" % 
+tree_url = "https://github.com/%s/%s/tree/master/%s" % ( 
     settings.GITHUB_ORGANIZATION,
     settings.GITHUB_REPO,
     settings.GITHUB_PATH

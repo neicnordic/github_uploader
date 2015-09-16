@@ -4,6 +4,7 @@ import os
 import re
 import requests
 import string
+from StringIO import StringIO
 
 from django.conf import settings
 from django.contrib import auth
@@ -13,6 +14,7 @@ from django.core.urlresolvers import reverse
 from django.forms import CharField, FileField, Form, ImageField
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext_lazy as _
+from PIL import Image
 from urllib import urlencode
 import json
 
@@ -76,12 +78,16 @@ class FilenameField(CharField):
             raise ValidationError(self.error_messages['invalid_filename'] % ''.join(illegal))
         if data.startswith('.'):
             raise ValidationError(self.error_messages['dotfile'])
-            
-class UploadForm(Form):
-    image = FileField(required=True)
-    filename = FilenameField(required=True)
-    filename_mini = FilenameField()
 
+MINIATURE_SIZE = getattr(settings, 'MINIATURE_SIZE', (200, 0))
+if MINIATURE_SIZE[0] == MINIATURE_SIZE[1] == 0:
+    raise ValueError('django.conf.settings.MINIATURE_SIZE cannot be (0, 0).')
+
+class UploadForm(Form):
+    file = FileField(required=True)
+    filename = FilenameField(required=True)
+    filename_miniature = FilenameField()
+    
     def __init__(self, *args, **kw):
         existing = kw.pop('existing', [])
         super(Form, self).__init__(*args, **kw)
@@ -95,20 +101,41 @@ class UploadForm(Form):
         self._assert_nonexisting(self.cleaned_data['filename'])
         return self.cleaned_data['filename']
 
-    def clean_filename_mini(self):
-        self._assert_nonexisting(self.cleaned_data['filename_mini'])
-        return self.cleaned_data['filename_mini']
+    def clean_filename_miniature(self):
+        self._assert_nonexisting(self.cleaned_data['filename_miniature'])
+        return self.cleaned_data['filename_miniature']
 
     def clean(self):
-        filename_mini = self.cleaned_data['filename_mini']
-        if filename_mini:
+        filename_miniature = self.cleaned_data['filename_miniature']
+        if filename_miniature:
             filename = self.cleaned_data['filename']
-            if os.path.splitext(filename)[1] != os.path.splitext(filename_mini)[1]:
+            if filename == filename_miniature:
+                raise ValidationError(_("The filenames must be different."))
+            if os.path.splitext(filename)[1] != os.path.splitext(filename_miniature)[1]:
                 raise ValidationError(_("The filenames must have the same extensions."))
             try:
-                ImageField().clean(self.cleaned_data['image'])
+                ImageField().clean(self.cleaned_data['file'])
             except ValidationError, e:
                 raise ValidationError(_("Cannot make miniatures from non-image files. %s") % e.messages)
+
+            image = Image(self.cleaned_data['file'])
+            self.cleaned_data['file'].seek(0)
+            orig_width, orig_height = image.size
+            width, height = MINIATURE_SIZE
+            if orig_width <= width or orig_height <= height:
+                raise ValidationError(_("Image is too small, miniatures should be at least %sx%spx." % MINIATURE_SIZE))
+            if width == 0:
+                width = int(float(orig_width) / orig_height * height)
+            if height == 0:
+                height = int(float(orig_height) / orig_width * width)
+            size = (width, height)
+            mini = image.resize(size, Image.ANTIALIAS)
+            miniature = StringIO() 
+            mini.save(miniature, image.format)
+            miniature.seek(0)
+            
+            self.cleaned_data['miniature'] = miniature
+            
         return self.cleaned_data
 
 def do_upload(access_token, content, filename):
@@ -125,13 +152,21 @@ def do_upload(access_token, content, filename):
         message='Upload %s\n\nUploaded through media uploader service.' % filename,
         )
     r = requests.put(url, params=params, headers=headers)
-    
+    return r.status_code == 200
+
+tree_url = ("https://github.com/%s/%s/tree/master/%s" % 
+    settings.GITHUB_ORGANIZATION,
+    settings.GITHUB_REPO,
+    settings.GITHUB_PATH
+    )
+
+tree_link = '<a href="%s">GitHub tree</a>' % tree_url
 
 @require_login
 def upload(request):
     """Media upload view; form handling logic for media uploads."""
     existing = os.listdir(settings.MEDIA_ROOT)
-    context = dict(success=False, existing_json=json.dumps(existing))
+    context = dict(existing_json=json.dumps(existing))
     ok_to_upload = False
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
@@ -142,10 +177,39 @@ def upload(request):
         return render(request, 'github_uploader/upload.html', context)
     
     # Ok to upload
+    access_token = request.session['github_access_token']
+    f = form.cleaned_data['file']
+    filename = form.cleaned_data['filename']
+    filename_miniature = form.cleaned_data['filename_miniature']
     
-    context['filename'] = form.cleaned_data['filename']
-    context['filename_mini'] = form.cleaned_data['filename_mini']
+    params = dict(file=f)
+    success = do_upload(access_token, f, filename)
+    if not success:
+        messages.error(request, 'File upload failed. Please check %s.' % tree_link)
+        return render(request, 'github_uploader/upload.html', context)
+
+    messages.success(request, 'File %s successfully uploaded.' % filename)
+
+    if not filename_miniature:
+        params.update(mini=filename_miniature)
+        miniature = form.cleaned_data['miniature']
+        success = do_upload(access_token, miniature, filename_miniature)
+        if not success:
+            messages.error(request, 'Miniature file upload failed. Please check %s.' % tree_link)
+            return render(request, 'github_uploader/upload.html', context)
+
+    messages.success(request, 'Miniature file %s successfully uploaded.' % filename_miniature)
     
+    return redirect(reverse(show) + '?' + urlencode(params))
+
+
+@require_login
+def show(request):
+    context = dict(
+        file=request.GET.get('file', None),
+        mini=request.GET.get('mini', None),
+        github_tree_url=tree_url,
+        github_tree_link=tree_link,
+        )
     
-    render(request, 'github_uploader/upload-success.html', context)
-                    
+    return render(request, 'github_uploader/show.html', context)

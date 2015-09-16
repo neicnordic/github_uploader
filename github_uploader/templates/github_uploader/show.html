@@ -1,0 +1,59 @@
+{% extends "github_uploader/upload.html" %}
+
+{% block content %}
+<h1>How to use uploaded files</h1>
+
+<p>It may take a short while before uploads become accessible on the server.
+In case they do not appear within a few minutes, you may want to check the 
+{{ github_tree_link|safe }} to see if anything went wrong.  
+
+<p>If anything went wrong, then either fix it yourself using command line git or 
+<a href="">GitHub desktop application</a>, or get a techie to fix it for you.
+
+<p>You can also <a href="{% url 'github_uploader.views.upload' %}">upload a new file</a>.
+
+<h2>Examples</h2>
+<p>There is <a href="https://github.com/neicnordic/neicweb#Adding_images_to_your_page">
+nice documentation with examples</a>on how to use your uploaded images and documents 
+on the website README.wiki, as shown on <a href="https://github.com/neicnordic/neicweb"> 
+neicweb repository page </a> on GitHub. 
+
+<p>But here are some concrete examples for this particular case. Feel free to copy and paste. 
+
+{% if mini %}
+<p>Clickable miniature sitting to the right on the page and links to larger version of the image:<br/>
+&lt;a href="{{ MEDIA_URL }}{{ file }}"><br/>
+&lt;img class="smallpic" src="{{ MEDIA_URL }}{{ mini }}"><br/>
+&lt;/a>
+
+<p>The same, but sits to the left:<br/>
+&lt;a href="{{ MEDIA_URL }}{{ file }}"><br/>
+&lt;img class="smallpic-left" src="{{ MEDIA_URL }}{{ mini }}"><br/>
+&lt;/a>
+{% endif %}
+
+<p>You can link a file like this <code>[[ /media/{{ file }} ]]</code> 
+or like this <code>[[ /media/{{ file }} | nice link text ]]</code>.  
+
+<h2>Review</h2>
+<p>If you uploaded an image, it will be shown here once it has gone through to the web server. 
+This page uses javascript to refresh automatically.  
+
+{% if mini %}
+<p>Miniature: {{ MEDIA_URL }}{{ mini }}
+<p><img src={{ MEDIA_URL }}{{ mini }} onerror='imgError(this);'>
+{% endif %}
+
+<p>File: {{ MEDIA_URL }}{{ file }}
+<p><img src={{ MEDIA_URL }}{{ file }} onerror='imgError(this);'>
+
+<script>
+function imgError(image) {
+    image.onerror = null;
+    setTimeout(function (){
+        image.src += '?' + new Date;
+     }, 5000);
+}
+</script>
+
+{% endblock content %}

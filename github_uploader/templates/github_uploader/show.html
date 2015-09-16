@@ -40,11 +40,11 @@ neicweb repository page </a> on GitHub.
 
 <p>You can link your file like this:
 
-<p> <code>[[ /media/{{ file }} ]]</code> 
+<p> <code>[[ {{ MEDIA_URL }}{{ file }} ]]</code> 
 
 <p> or like this:
 
-<p> <code>[[ /media/{{ file }} | nice link text ]]</code>  
+<p> <code>[[ {{ MEDIA_URL }}{{ file }} | nice link text ]]</code>  
 
 <h2>Review</h2>
 <p>If you uploaded an image, it will be shown here once it has gone through to the web server. 

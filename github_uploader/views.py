@@ -1,6 +1,8 @@
+import base64
 from random import SystemRandom
 import os
 import re
+import requests
 import string
 
 from django.conf import settings
@@ -35,7 +37,7 @@ def login(request):
         params = dict(
             client_id=settings.GITHUB_CLIENT_ID,
             redirect_uri=request.build_absolute_uri(reverse(authorize)),
-            scope="user:email,read:org",
+            scope="repo,read:org",
             state=state)
         return redirect('https://github.com/login/oauth/authorize?' + urlencode(params))
     return render(request, 'github_uploader/login.html')
@@ -73,7 +75,7 @@ class FilenameField(CharField):
         if illegal:
             raise ValidationError(self.error_messages['invalid_filename'] % ''.join(illegal))
         if data.startswith('.'):
-            raise ValidationError(self.error_messages['invalid_filename'])
+            raise ValidationError(self.error_messages['dotfile'])
             
 class UploadForm(Form):
     image = FileField(required=True)
@@ -109,29 +111,41 @@ class UploadForm(Form):
                 raise ValidationError(_("Cannot make miniatures from non-image files. %s") % e.messages)
         return self.cleaned_data
 
-def do_upload(f, filename, filename_mini):
-    """Utility function: trigger upload for file.
+def do_upload(access_token, content, filename):
+    """PyGitHub does not yet support the create/update file API."""
     
-    If filename_mini is set, make a miniature image for the file f and upload that too.
-    """
-    print "We're good to go! I could upload this at this point (but I won't):"
-    print repr(f), filename, filename_mini
+    "PUT /repos/:owner/:repo/contents/:path"
+    url = 'https://api.github.com/repos/%s/%s/contents/media/%s'
+    url %= (settings.GITHUB_ORGANIZATION, settings.GITHUB_REPO, filename)
+    
+    headers = dict(Accept='application/vnd.github.v3+json')
+    params = dict(
+        access_token=access_token,
+        content=base64.b64encode(content),
+        message='Upload %s\n\nUploaded through media uploader service.' % filename,
+        )
+    r = requests.put(url, params=params, headers=headers)
+    
 
 @require_login
 def upload(request):
     """Media upload view; form handling logic for media uploads."""
     existing = os.listdir(settings.MEDIA_ROOT)
     context = dict(success=False, existing_json=json.dumps(existing))
+    ok_to_upload = False
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            do_upload(
-                form.files['image'], 
-                form.cleaned_data['filename'], 
-                form.cleaned_data['filename_mini'])
-            context['filename'] = form.cleaned_data['filename']
-            context['filename_mini'] = form.cleaned_data['filename_mini']
-            render(request, 'github_uploader/upload-success.html', context)
+        ok_to_upload = form.is_valid() 
         context['errors'] = form._errors
-    return render(request, 'github_uploader/upload.html', context)
+
+    if not ok_to_upload:
+        return render(request, 'github_uploader/upload.html', context)
+    
+    # Ok to upload
+    
+    context['filename'] = form.cleaned_data['filename']
+    context['filename_mini'] = form.cleaned_data['filename_mini']
+    
+    
+    render(request, 'github_uploader/upload-success.html', context)
                     

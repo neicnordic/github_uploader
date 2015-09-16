@@ -25,6 +25,7 @@ from local_settings import GITHUB_CLIENT_SECRET
 from local_settings import MEDIA_ROOT
 
 GITHUB_ORGANIZATION = 'neicnordic'
+GITHUB_REPO = 'neicweb'
 
 # Application definition
 

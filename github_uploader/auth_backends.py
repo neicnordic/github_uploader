@@ -7,7 +7,7 @@ import requests
 from github import Github
 
 
-class GitHubOrgMemberBackend(backends.RemoteUserBackend):
+class GitHubOrgMemberBackend(backends.ModelBackend):
     """Github OAuth2 login handling, and org membership validation.
     
     Warning: Uses session variables for passing crypto info. 
@@ -47,12 +47,15 @@ class GitHubOrgMemberBackend(backends.RemoteUserBackend):
             code=code,
             state=saved_state,
             )
-        headers = dict(Accept='application/json')
+        headers = dict(Accept='application/vnd.github.v3+json')
         req = requests.post('https://github.com/login/oauth/access_token', params=params, headers=headers)
         if req.status_code != 200:
             return None
         
-        auth_info = json.loads(req.text)
+        try:
+            auth_info = json.loads(req.text)
+        except:
+            return None
         access_token = auth_info.get('access_token', None)
         token_type = auth_info.get('access_token', None)
         if not access_token:
@@ -60,8 +63,8 @@ class GitHubOrgMemberBackend(backends.RemoteUserBackend):
         if not token_type:
             return None 
         
-        g = Github(access_token)
-        github_user = g.get_user()
+        github_client = Github(access_token)
+        github_user = github_client.get_user()
         username = github_user.login 
         if not username:
             return None
@@ -82,6 +85,7 @@ class GitHubOrgMemberBackend(backends.RemoteUserBackend):
         if created:
             user.save()
         request_with_github_code.session['github_access_token'] = access_token
+        request_with_github_code.session['github_client'] = github_client
 
         return user
     

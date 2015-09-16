@@ -118,7 +118,7 @@ class UploadForm(Form):
             except ValidationError, e:
                 raise ValidationError(_("Cannot make miniatures from non-image files. %s") % e.messages)
 
-            image = Image(self.cleaned_data['file'])
+            image = Image.open(self.cleaned_data['file'])
             self.cleaned_data['file'].seek(0)
             orig_width, orig_height = image.size
             width, height = MINIATURE_SIZE

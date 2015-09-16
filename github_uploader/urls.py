@@ -25,4 +25,5 @@ urlpatterns = [
 
     # Uploads
     url(r'^upload/$', 'github_uploader.views.upload'),
+    url(r'^show/$', 'github_uploader.views.show'),
 ]

@@ -50,7 +50,7 @@ def authorize(request):
     if user and user.is_active:
         auth.login(request, user)
         messages.success(request, 'You are now logged in. Please enjoy responsibly.')
-        return redirect(top)
+        return redirect(upload)
     messages.error(request, 'Login failed.')
     return redirect(login)
 

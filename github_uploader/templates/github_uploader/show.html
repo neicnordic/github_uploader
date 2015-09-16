@@ -21,14 +21,16 @@ neicweb repository page </a> on GitHub.
 <p>But here are some concrete examples for this particular case. Feel free to copy and paste. 
 
 {% if mini %}
-<p>Clickable miniature sitting to the right on the page and links to larger version of the image:<br/>
+<p>Clickable miniature sitting to the right on the page and links to larger version of the image:
+<p>
 <code>
 &lt;a href="{{ MEDIA_URL }}{{ file }}"><br/>
 &lt;img class="smallpic" src="{{ MEDIA_URL }}{{ mini }}"><br/>
 &lt;/a>
 </code>
 
-<p>The same, but sits to the left:<br/>
+<p>The same, but sits to the left:
+<p>
 <code>
 &lt;a href="{{ MEDIA_URL }}{{ file }}"><br/>
 &lt;img class="smallpic-left" src="{{ MEDIA_URL }}{{ mini }}"><br/>

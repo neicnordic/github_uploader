@@ -210,6 +210,7 @@ def show(request):
         mini=request.GET.get('mini', None),
         github_tree_url=tree_url,
         github_tree_link=tree_link,
+        MEDIA_URL=settings.MEDIA_URL,
         )
     
     return render(request, 'github_uploader/show.html', context)

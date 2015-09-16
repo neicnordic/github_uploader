@@ -20,11 +20,11 @@
 
 <tr>
 <td>
- <label for="filename_mini">Miniature</label>:
+ <label for="filename_miniature">Miniature</label>:
  <input type='checkbox' name="make_mini" id="make_mini" title="Also make a miniature?" />
 </td>
 <td>
-<input type='text' name="filename_mini" id="filename_mini" size="100" style="color: gray;" title="Filename for the miniature." />
+<input type='text' name="filename_miniature" id="filename_miniature" size="100" style="color: gray;" title="Filename for the miniature." />
 </td>
 </tr>
 <tr>
@@ -88,7 +88,7 @@ Size:
     	            $('#make_mini').prop('checked', true);
     	            $('#hint_mini').text("Could probably use a miniature.")
     	        } else {
-    	            $('#filename_mini').attr('value', '');
+    	            $('#filename_miniature').attr('value', '');
     	            $('#make_mini').prop('checked', false);
     	            $('#mini').css('display', 'none');
     	            $('#hint_mini').text("Probably doesn't need a miniature.")
@@ -121,7 +121,7 @@ Size:
 	}
 
     function checkExisting() {
-        var inputs = ['#filename', '#filename_mini'];
+        var inputs = ['#filename', '#filename_miniature'];
         var submit = $("#submit");
         for (var i in inputs) {
             var input = $(inputs[i]);
@@ -147,12 +147,12 @@ Size:
 	    	suggest = parts.base + '.' + parts.ext;
     	    this.value = suggest;
 	    	if ($('#make_mini').prop('checked')) {
-    			$('#filename_mini').val(parts.base + '-mini.' + parts.ext);
+    			$('#filename_miniature').val(parts.base + '-mini.' + parts.ext);
     		} else {
-	    		$('#filename_mini').val('');
+	    		$('#filename_miniature').val('');
 	    	}
     	} else {
-    		$('#filename_mini').val('');
+    		$('#filename_miniature').val('');
     	}
     	checkExisting();
     });
@@ -162,18 +162,18 @@ Size:
     	if (this.value) {
 	    	var parts = suggestFilename(this.value);
 	    	if ($('#make_mini').prop('checked')) {
-    			$('#filename_mini').val(parts.base + '-mini.' + parts.ext);
+    			$('#filename_miniature').val(parts.base + '-mini.' + parts.ext);
     		} else {
-	    		$('#filename_mini').val('');
+	    		$('#filename_miniature').val('');
 	    	}
     	} else {
-    		$('#filename_mini').val('');
+    		$('#filename_miniature').val('');
     	}
     	checkExisting();
     });
 
 	$("#make_mini").change(function(){
-		$("#filename_mini").prop('disabled', !this.checked);
+		$("#filename_miniature").prop('disabled', !this.checked);
 		$("#filename").change();
 	});
 
@@ -183,7 +183,7 @@ Size:
 		if ($("#filename").val()) { 
 			msg = msg + "If it did, you could have linked it in your page as:\n\n /media/" +
 				$("#filename").val();
-			if ($("#filename_mini").val()) {
+			if ($("#filename_miniature").val()) {
 				msg = msg + "\n\nand for the miniature:\n\n /media/" + $("#filename_mini").val();
 			}
 		} else {

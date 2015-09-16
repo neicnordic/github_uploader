@@ -106,7 +106,7 @@ class UploadForm(Form):
         return self.cleaned_data['filename_miniature']
 
     def clean(self):
-        filename_miniature = self.cleaned_data['filename_miniature']
+        filename_miniature = self.cleaned_data.get('filename_miniature', None)
         if filename_miniature:
             filename = self.cleaned_data['filename']
             if filename == filename_miniature:

@@ -153,11 +153,11 @@ def do_upload(access_token, file, filename):
         Accept='application/json', 
         Authorization='token ' + access_token,
         )
-    params = dict(
+    param = dict(
         content=base64.b64encode(file.read()),
         message='Upload %s\n\nUploaded through media uploader service.' % filename,
         )
-    r = requests.put(url, params=params, headers=headers)
+    r = requests.put(url, param=param, headers=headers)
     return r.status_code == 200
 
 tree_url = "https://github.com/%s/%s/tree/master/%s" % ( 

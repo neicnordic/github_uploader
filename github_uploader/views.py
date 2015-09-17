@@ -84,9 +84,9 @@ if MINIATURE_SIZE[0] == MINIATURE_SIZE[1] == 0:
     raise ValueError('django.conf.settings.MINIATURE_SIZE cannot be (0, 0).')
 
 class UploadForm(Form):
-    file = FileField(required=True)
-    filename = FilenameField(required=True)
-    filename_miniature = FilenameField()
+    file = FileField()
+    filename = FilenameField()
+    filename_miniature = FilenameField(required=True) # Fixme, set to False when done with testing error handling.
     
     def __init__(self, *args, **kw):
         existing = kw.pop('existing', [])

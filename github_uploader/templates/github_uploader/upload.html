@@ -24,26 +24,22 @@
 {% csrf_token %}
     
 <table>
-<tr>
-<td></td><td>File: {{ form.file.errors }}</td>
-</tr>
-<tr>
 <td><label for="file">Image</label>: </td>
 <td><input type='file' name="file" id="file" size="100" /> </td>
 </tr>
-
 <tr>
-<td></td><td>Filename: {{ form.filename.errors }}</td>
+<td></td><td>{{ form.file.errors }}</td>
 </tr>
 <tr>
+
 <td><label for="filename">Filename</label>: </td>
 <td><input type='text' name="filename" id="filename" size="50" style="color: gray;" title="Filename for the image."/> </td>
 </tr>
-
 <tr>
-<td></td><td>Filename miniature:{{ form.filename_miniature.errors }}</td>
+<td></td><td>{{ form.filename.errors }}</td>
 </tr>
 <tr>
+
 <td>
  <label for="filename_miniature">Miniature</label>:
  <input type='checkbox' name="make_mini" id="make_mini" title="Also make a miniature?" />
@@ -52,6 +48,11 @@
 <input type='text' name="filename_miniature" id="filename_miniature" size="50" style="color: gray;" title="Filename for the miniature." />
 </td>
 </tr>
+<tr>
+<td></td><td>{{ form.filename_miniature.errors }}</td>
+</tr>
+<tr>
+
 <tr>
 <td>
 </td>

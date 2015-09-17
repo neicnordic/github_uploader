@@ -149,9 +149,11 @@ def do_upload(access_token, file, filename):
         settings.GITHUB_PATH, 
         filename)
     
-    headers = dict(Accept='application/vnd.github.v3+json')
+    headers = dict(
+        Accept='application/json', 
+        Authorization='token ' + access_token,
+        )
     params = dict(
-        access_token=access_token,
         content=base64.b64encode(file.read()),
         message='Upload %s\n\nUploaded through media uploader service.' % filename,
         )

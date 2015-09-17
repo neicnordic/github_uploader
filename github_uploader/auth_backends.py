@@ -85,7 +85,6 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
         if created:
             user.save()
         request_with_github_code.session['github_access_token'] = access_token
-        request_with_github_code.session['github_client'] = github_client
 
         return user
     

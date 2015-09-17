@@ -60,7 +60,6 @@ This page uses javascript to refresh automatically.
 
 <script>
 function imgError(image) {
-    image.onerror = null;
     setTimeout(function (){
         image.src += '?' + new Date;
      }, 5000);

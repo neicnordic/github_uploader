@@ -86,7 +86,7 @@ if MINIATURE_SIZE[0] == MINIATURE_SIZE[1] == 0:
 class UploadForm(Form):
     file = FileField()
     filename = FilenameField()
-    filename_miniature = FilenameField(required=True) # Fixme, set to False when done with testing error handling.
+    filename_miniature = FilenameField(required=False)
     
     def __init__(self, *args, **kw):
         existing = kw.pop('existing', [])

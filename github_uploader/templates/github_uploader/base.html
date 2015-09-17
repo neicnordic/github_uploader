@@ -19,7 +19,7 @@
 <body>
 
 <header id="header" style="padding-top: 2px;"></header>
-<section class="intro" style="background: #1c1725 url(/assets/img/bg-intro.jpg) repeat-x 50% 0; display: block; margin: 0 0 0px;">
+<section class="intro" style="background: #1c1725 url(/assets/img/{% if PRODUCTION %}bg-intro.jpg{% else %}banjo.jpg{% endif %}) repeat-x 50% 0; display: block; margin: 0 0 0px;">
 
 <div class="account-box" style="text-align: right; height: 25px; color: white; padding: 5px 1em;">
 <a style="color:inherit;" href="{% url "github_uploader.views.top" %}">Home</a> &nbsp;

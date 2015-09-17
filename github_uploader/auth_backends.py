@@ -47,7 +47,7 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
             code=code,
             state=saved_state,
             )
-        headers = dict(Accept='application/vnd.github.v3+json')
+        headers = dict(Accept='application/json')
         req = requests.post('https://github.com/login/oauth/access_token', params=params, headers=headers)
         if req.status_code != 200:
             return None

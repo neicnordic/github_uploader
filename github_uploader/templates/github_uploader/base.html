@@ -41,7 +41,7 @@
   bottom: 0;
   height: 106px;">
 			{% block banner %}
-			<p style="margin: 0.5em 0;"> <b>NeICweb GitHub Uploader {% if PRODUCTION %} Devel {% endif %}</b>
+			<p style="margin: 0.5em 0;"> <b>NeICweb GitHub Uploader {% if not PRODUCTION %} Devel {% endif %}</b>
 			<p style="margin: 0.5em 0;"> ~ Snazzier media uploads for the NeIC web ~ 
 			{% endblock %}
 		</div>

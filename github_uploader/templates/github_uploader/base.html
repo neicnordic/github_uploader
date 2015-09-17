@@ -6,11 +6,15 @@
 <meta charset="utf-8">
 
 <title>{% block fulltitle %}{% block title %}{% endblock %} - NeICweb GitHub Uploader {% endblock %}</title>
-<script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.js"></script>
+{% block styles %}
 <link media="all" rel="stylesheet" type="text/css" href="/assets/css/base.css">
 <link media="all" rel="stylesheet" type="text/css" href="/assets/css/public.css">
 <link media="all" rel="stylesheet" href="/assets/css/all.css">
 <link media="all" rel="stylesheet" href="{% static "github/uploader.css" %}">
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.js"></script>
+{% endblock %}
 </head>
 <body>
 

@@ -153,12 +153,12 @@ def do_upload(access_token, file, filename):
         Accept='application/json', 
         Authorization='token ' + access_token,
         )
-    param = dict(
+    data = dict(
         content=base64.b64encode(file.read()),
         message='Upload %s\n\nUploaded through media uploader service.' % filename,
         )
-    r = requests.put(url, param=param, headers=headers)
-    return r.status_code == 200
+    r = requests.put(url, json.dumps(data), headers=headers)
+    return r.status_code == 201 # CREATED
 
 tree_url = "https://github.com/%s/%s/tree/master/%s" % ( 
     settings.GITHUB_ORGANIZATION,
@@ -196,7 +196,7 @@ def upload(request):
 
     messages.success(request, 'File %s successfully uploaded.' % filename)
 
-    if not filename_miniature:
+    if filename_miniature:
         params.update(mini=filename_miniature)
         miniature = form.cleaned_data['miniature']
         success = do_upload(access_token, miniature, filename_miniature)
@@ -204,7 +204,7 @@ def upload(request):
             messages.error(request, 'Miniature file upload failed. Please check %s.' % tree_link)
             return render(request, 'github_uploader/upload.html', context)
 
-    messages.success(request, 'Miniature file %s successfully uploaded.' % filename_miniature)
+        messages.success(request, 'Miniature file %s successfully uploaded.' % filename_miniature)
     
     return redirect(reverse(show) + '?' + urlencode(params))
 

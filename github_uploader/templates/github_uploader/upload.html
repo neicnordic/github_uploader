@@ -122,10 +122,11 @@ Size:
 
     function checkExisting() {
         var inputs = ['#filename', '#filename_miniature'];
+        var values = [$("#filename").val(), $("#filename_miniature").val()];
         var submit = $("#submit");
         for (var i in inputs) {
             var input = $(inputs[i]);
-            if (existing.indexOf(input.val()) < 0) {
+            if (existing.indexOf(values[i]) < 0 and values[0] != values[1]) {
                 input.css('background', 'white');
                 input.prop('title', '');
                 submit.prop('disabled', false);

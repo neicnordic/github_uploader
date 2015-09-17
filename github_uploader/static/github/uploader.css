@@ -1,4 +1,4 @@
-/* MESSAGES */
+/* Messages */
 
 #messages {
     padding: 0px;
@@ -31,9 +31,8 @@
     background-color: #ffbebe;
 }
 
-/* GENERAL */
+/* Form errors */
 
-.errortext {
-    color: #CA3403;
-} 
-
+.errorlist {
+    color: #B34123;
+}

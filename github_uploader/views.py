@@ -119,7 +119,6 @@ class UploadForm(Form):
                 raise ValidationError(_("Cannot make miniatures from non-image files. %s") % e.messages)
 
             image = Image.open(self.cleaned_data['file'])
-            self.cleaned_data['file'].seek(0)
             orig_width, orig_height = image.size
             width, height = MINIATURE_SIZE
             if orig_width <= width or orig_height <= height:
@@ -133,8 +132,10 @@ class UploadForm(Form):
             miniature = StringIO() 
             mini.save(miniature, image.format)
             miniature.seek(0)
-            
             self.cleaned_data['miniature'] = miniature
+
+            self.cleaned_data['miniature'].seek(0)
+            self.cleaned_data['file'].seek(0)
             
         return self.cleaned_data
 

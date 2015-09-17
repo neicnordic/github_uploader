@@ -1,0 +1,30 @@
+# Installation specific settings.
+
+#
+# This is an example config. 
+#
+# For deployment on new systems, this file should be saved as local_settings.py 
+# in a separate directory on PYTHONPATH, where world has no access, and where 
+# the webserver can read but not write.
+#
+
+PRODUCTION = True
+DEBUG = not PRODUCTION
+SECRET_KEY = # Typically 50 SystemRandom() string.printable
+ALLOWED_HOSTS = ['neic.nordforsk.org', 'neic.nbi.dk']
+ADMINS = # Put your contact info here (('Joel', 'joel@nsc.liu.se'),)
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/var/www/github_uploader/db/db.sqlite3',
+    }
+}
+
+# Get these from the github application page
+GITHUB_CLIENT_ID = # Typically 20 hexchars.  
+GITHUB_CLIENT_SECRET = # Typically 40 hexchars.
+
+STATIC_ROOT = '/var/www/github_uploader/static/'
+MEDIA_ROOT = '/var/www/html/media/'
+

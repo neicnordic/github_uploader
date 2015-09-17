@@ -3,6 +3,8 @@
 {% block title %} Upload {% endblock %}
 
 {% block content %}
+<h1>Upload</h1>
+
 <p> Select an image, give it a name, decide if it needs a miniature.
 
 <p> Be careful about what you upload. Keep in mind that everything you upload through this service goes directly onto the public Internet, to our website, in your name.
@@ -21,7 +23,7 @@
 
 <tr>
 <td><label for="filename">Filename</label>: </td>
-<td><input type='text' name="filename" id="filename" size="100" style="color: gray;" title="Filename for the image."/> </td>
+<td><input type='text' name="filename" id="filename" size="50" style="color: gray;" title="Filename for the image."/> </td>
 </tr>
 
 <tr>
@@ -30,7 +32,7 @@
  <input type='checkbox' name="make_mini" id="make_mini" title="Also make a miniature?" />
 </td>
 <td>
-<input type='text' name="filename_miniature" id="filename_miniature" size="100" style="color: gray;" title="Filename for the miniature." />
+<input type='text' name="filename_miniature" id="filename_miniature" size="50" style="color: gray;" title="Filename for the miniature." />
 </td>
 </tr>
 <tr>

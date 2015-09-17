@@ -18,6 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # local_settings.py is in a separate dir on the PYTHONPATH, away from prying eyes.
 from local_settings import SECRET_KEY
 from local_settings import DEBUG
+from local_settings import PRODUCTION
 from local_settings import DATABASES
 from local_settings import STATIC_ROOT
 from local_settings import ALLOWED_HOSTS

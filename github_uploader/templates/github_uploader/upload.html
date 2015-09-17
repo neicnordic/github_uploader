@@ -18,19 +18,31 @@
 
 <p> If something goes wrong you are welcome to contact any NeIC techie, who are highly skilled and fully equipped to help you solve any problem in life. 
 
+<p>{{ form.non_field_errors }}
+
 <form id="uploader_form" method="POST" enctype="multipart/form-data">
 {% csrf_token %}
+    
 <table>
+<tr>
+<td></td><td>{{ form.file.errors }}</td>
+</tr>
 <tr>
 <td><label for="file">Image</label>: </td>
 <td><input type='file' name="file" id="file" size="100" /> </td>
 </tr>
 
 <tr>
+<td></td><td>{{ form.filename.errors }}</td>
+</tr>
+<tr>
 <td><label for="filename">Filename</label>: </td>
 <td><input type='text' name="filename" id="filename" size="50" style="color: gray;" title="Filename for the image."/> </td>
 </tr>
 
+<tr>
+<td></td><td>{{ form.filename_miniature.errors }}</td>
+</tr>
 <tr>
 <td>
  <label for="filename_miniature">Miniature</label>:
@@ -44,7 +56,7 @@
 <td>
 </td>
 <td>
-<input type='submit' value="Upload" id="submit" title="Push this file to the live production web server." />
+<input type='submit' value="Go live with this!" id="submit" title="Push this file through your GitHub account to the live production web server." />
 </td>
 </tr>
 </table>

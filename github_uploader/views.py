@@ -189,7 +189,7 @@ def upload(request):
     filename = form.cleaned_data['filename']
     filename_miniature = form.cleaned_data['filename_miniature']
     
-    params = dict(file=f)
+    params = dict(file=filename)
     success = do_upload(access_token, f, filename)
     if not success:
         messages.error(request, 'File upload failed. Please check %s.' % tree_link)

@@ -122,7 +122,7 @@ Size:
     });
 
     function suggestFilename(name) {
-        name = name.replace('NeIC', 'neic').replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+        name = name.replace('NeIC', 'neic').replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase().replace(/åä/g, 'a').replace(/öœø/g, 'o').replace(/æ/g, 'ae');
         var base = name.replace(/\.[^/.]+$/, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '');
         var ext = '';
         if (name.indexOf('.') >= 0 ) {

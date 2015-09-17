@@ -14,6 +14,10 @@
 
 <p> Be careful about what you upload. Keep in mind that everything you upload through this service goes directly onto the public Internet, to our website, in your name.
 
+{% if not PRODUCTION %} 
+<p> That said, this is the development system, so any mistakes here will not end up on our website proper. But still, no monkey business, ok? 
+{% endif %}
+
 <p> Note that at present this service can only add new files. Not change or delete them. 
 
 <p> If something goes wrong you are welcome to contact any NeIC techie, who are highly skilled and fully equipped to help you solve any problem in life. 

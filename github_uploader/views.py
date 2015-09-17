@@ -178,7 +178,7 @@ def upload(request):
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
         ok_to_upload = form.is_valid() 
-        context['errors'] = form._errors
+        context['form'] = form
 
     if not ok_to_upload:
         return render(request, 'github_uploader/upload.html', context)

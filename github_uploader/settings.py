@@ -15,17 +15,18 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# local_settings.py is in a separate dir on the PYTHONPATH, away from prying eyes.
 from local_settings import SECRET_KEY
 from local_settings import DEBUG
 from local_settings import DATABASES
 from local_settings import STATIC_ROOT
 from local_settings import ALLOWED_HOSTS
+from local_settings import GITHUB_REPO
 from local_settings import GITHUB_CLIENT_ID
 from local_settings import GITHUB_CLIENT_SECRET
 from local_settings import MEDIA_ROOT
 
 GITHUB_ORGANIZATION = 'neicnordic'
-GITHUB_REPO = 'neicweb'
 GITHUB_PATH = 'media'
 MINIATURE_SIZE = (200, 0)
 

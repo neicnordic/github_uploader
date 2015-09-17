@@ -9,7 +9,7 @@
 #
 
 PRODUCTION = True
-DEBUG = not PRODUCTION
+DEBUG = False # Don't set to True on servers on the Internet.
 SECRET_KEY = # Typically 50 SystemRandom() string.printable
 ALLOWED_HOSTS = ['neic.nordforsk.org', 'neic.nbi.dk']
 ADMINS = # Put your contact info here (('Joel', 'joel@nsc.liu.se'),)
@@ -21,10 +21,11 @@ DATABASES = {
     }
 }
 
+GITHUB_REPO = 'neicweb-devel'
+
 # Get these from the github application page
 GITHUB_CLIENT_ID = # Typically 20 hexchars.  
 GITHUB_CLIENT_SECRET = # Typically 40 hexchars.
 
 STATIC_ROOT = '/var/www/github_uploader/static/'
 MEDIA_ROOT = '/var/www/html/media/'
-

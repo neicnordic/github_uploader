@@ -59,16 +59,16 @@ Size:
     max_pixels = 200 * 400;
     max_bytes = 250000;
     
-    existing = {{ existing_json|safe|default:"[]" }};
+    existing = ["infj-lookout-hs-mini.jpg", "13-32-05-NeIC-Strategy-131008.pdf", "infj-lookout-hs.jpg", "130506-NeIC-MoU-signed-by-all.pdf", "test.txt", "150331-Open-position-announcement-NT1-future-operations.pdf", "glowing-mini.jpg", "2014-10-14-Open-position-announcement-NeIC_Support_EISCAT_3D_Project_lead_4.pdf", "2014-10-16-nordic-accounting-workshop.jpeg", "2014-prace-report-final.pdf", "JosepFlix-small.png", "ahm15-azab-host-mini.jpeg", "ahm15-azab-host.jpeg", "ahm15-group-photo.jpeg", "ahm15-mbti.jpeg", "antti-portrait.jpeg", "arc-logo.png", "boards-meet-mini.jpeg", "boards-meet.jpeg", "cognitus.jpg", "dan-street-mini.jpeg", "dan-street.jpeg", "dejan-small.jpeg", "eiscat-3d-aurora-mini.jpeg", "eiscat-3d-aurora.jpeg", "francesca-street-mini.jpeg", "francesca-street.jpeg", "frank-hanssen-mini.jpeg", "frank-hanssen.jpeg", "gerd-maswan-mini.jpeg", "gerd-maswan.jpeg", "glenna-kickoff-mini.jpeg", "glenna-kickoff.jpeg", "john-white-mountains.jpeg", "large_turnout_image_frontpage.jpg", "large_turnout_image_mini.jpg", "nancy-image.jpg", "nancy-image_mini.jpg", "glowing.jpg", "neic-2020-co-funding-proposal-cover-mini.png", "neic-flyer-2013.pdf", "neic-gen-folder-140516.pdf", "neic-tryggve-folder-140514.pdf", "rob-small.jpeg", "thomas-portrait-mini.jpeg", "tommi-at-work.jpeg", "tryggve-kickoff.jpeg"];
     
-	function formatBytes(bytes,decimals) {
-		if(bytes == 0) return '0 Byte';
-   		var k = 1000;
-	   	var dm = decimals + 1 || 3;
-		var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-	   	var i = Math.floor(Math.log(bytes) / Math.log(k));
-	 	return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
-	}
+    function formatBytes(bytes,decimals) {
+        if(bytes == 0) return '0 Byte';
+        var k = 1000;
+        var dm = decimals + 1 || 3;
+        var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        var i = Math.floor(Math.log(bytes) / Math.log(k));
+        return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
+    }
             
     function updatePreview(input) {
         if (input.files && input.files[0]) {
@@ -79,32 +79,32 @@ Size:
                 var width = $('#fullsize').prop('width');
                 var height = $('#fullsize').prop('height');
                 var filesize = input.files[0].size;
-    	        $('#width').text(width);
-	            $('#height').text(height);	
-    	        $('#filesize').text(formatBytes(filesize, 2));
-				if (width * height > max_pixels || filesize > max_bytes) {
-					$('#mini').attr('src', e.target.result);
-    	            $('#mini').css('display', 'inline');
-    	            $('#make_mini').prop('checked', true);
-    	            $('#hint_mini').text("Could probably use a miniature.")
-    	        } else {
-    	            $('#filename_miniature').attr('value', '');
-    	            $('#make_mini').prop('checked', false);
-    	            $('#mini').css('display', 'none');
-    	            $('#hint_mini').text("Probably doesn't need a miniature.")
-    	        }
-    	        var parts = suggestFilename(input.files[0].name);
+                $('#width').text(width);
+                $('#height').text(height);  
+                $('#filesize').text(formatBytes(filesize, 2));
+                if (width * height > max_pixels || filesize > max_bytes) {
+                    $('#mini').attr('src', e.target.result);
+                    $('#mini').css('display', 'inline');
+                    $('#make_mini').prop('checked', true);
+                    $('#hint_mini').text("Could probably use a miniature.")
+                } else {
+                    $('#filename_miniature').attr('value', '');
+                    $('#make_mini').prop('checked', false);
+                    $('#mini').css('display', 'none');
+                    $('#hint_mini').text("Probably doesn't need a miniature.")
+                }
+                var parts = suggestFilename(input.files[0].name);
                 $('#filename').val(parts.base + '.' + parts.ext);
                 $('#filename').change();
                 $('#make_mini').change();
             }
             
             reader.readAsDataURL(input.files[0]);
-			$('#preview').css('display', 'inline');
+            $('#preview').css('display', 'inline');
         } else {
-			$('#preview').css('display', 'none');
-			$('#filename').val('');
-			$('#filename').change();
+            $('#preview').css('display', 'none');
+            $('#filename').val('');
+            $('#filename').change();
         }
 
     }
@@ -113,85 +113,119 @@ Size:
         updatePreview(this);
     });
 
-	function suggestFilename(name) {
-	    name = name.replace('NeIC', 'neic').replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-    	var base = name.replace(/\.[^/.]+$/, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '');
-    	var ext = name.split('.').pop();
-    	return {'base': base, 'ext': ext};
-	}
+    function suggestFilename(name) {
+        name = name.replace('NeIC', 'neic').replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+        var base = name.replace(/\.[^/.]+$/, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '');
+        var ext = '';
+        if (name.indexOf('.') >= 0 ) {
+            ext = name.split('.').pop().replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '');
+        }
+        return {'base': base, 'ext': ext};
+    }
 
-    function checkExisting() {
-        var inputs = ['#filename', '#filename_miniature'];
-        var values = [$("#filename").val(), $("#filename_miniature").val()];
+    function setError(input, errmsg) {
         var submit = $("#submit");
+        input.css('background', '#fee');
+        input.prop('title', 'Error: ' + errmsg);
+        submit.prop('disabled', true);
+        submit.prop('title', 'Error: ' + errmsg);
+    }
+
+    function setOK(input, errmsg) {
+        var submit = $("#submit");
+        input.css('background', 'white');
+        input.prop('title', '');
+        submit.prop('disabled', false);
+        submit.prop('title', '');
+    }
+
+    function checkFilenames() {
+        var inputs = [$('#filename'), $('#filename_miniature')];
+        var values = [inputs[0].val(), inputs[1].val()];
         for (var i in inputs) {
-            var input = $(inputs[i]);
-            if (existing.indexOf(values[i]) < 0 and values[0] != values[1]) {
-                input.css('background', 'white');
-                input.prop('title', '');
-                submit.prop('disabled', false);
-                submit.prop('title', '');
+            var input = inputs[i];
+            if (values[0] && (values[0] == values[1])) {
+                setError(input, 'Filenames must be different.');
+            } else if (existing.indexOf(values[i]) >= 0) {
+                setError(input, 'Filename already exists.');
+            } else if ( $('#file').val() && ! values[i] ) {
+                if ( i == 0 || $('#make_mini').checked ) {
+                    setError(input, 'Filename cannot be empty.');
+                }
+            } else if (values[i] && values[i].indexOf('.') < 0) {
+                setError(input, 'Missing filename extension.');
             } else {
-                input.css('background', '#fee');
-                input.prop('title', 'Error: Filename already exists.');
-                submit.prop('disabled', true);
-                submit.prop('title', 'Error: Filename already exists.');
+                setOK(input);
             }
         }
     }
 
     $("#filename").change(function(){
-    	suggest = '';
-    	this.value = this.value.trim();
-    	if (this.value) {
-	    	var parts = suggestFilename(this.value);
-	    	suggest = parts.base + '.' + parts.ext;
-    	    this.value = suggest;
-	    	if ($('#make_mini').prop('checked')) {
-    			$('#filename_miniature').val(parts.base + '-mini.' + parts.ext);
-    		} else {
-	    		$('#filename_miniature').val('');
-	    	}
-    	} else {
-    		$('#filename_miniature').val('');
-    	}
-    	checkExisting();
+        suggest = '';
+        this.value = this.value.trim();
+        if (this.value) {
+            var parts = suggestFilename(this.value);
+            suggest = parts.base;
+            if (parts.ext) {
+                suggest = suggest + '.' + parts.ext;
+            }
+            this.value = suggest;
+            if ($('#make_mini').prop('checked')) {
+                var suggest_mini = parts.base + '-mini';
+                if (parts.ext) {
+                    suggest_mini = suggest_mini + '.' + parts.ext;
+                }
+                $('#filename_miniature').val(suggest_mini);
+            } else {
+                $('#filename_miniature').val('');
+            }
+        } else {
+            $('#filename_miniature').val('');
+        }
+        checkFilenames();
     });
 
     $("#filename").bind("propertychange click keyup input paste", function(){
-    	suggest = '';
-    	if (this.value) {
-	    	var parts = suggestFilename(this.value);
-	    	if ($('#make_mini').prop('checked')) {
-    			$('#filename_miniature').val(parts.base + '-mini.' + parts.ext);
-    		} else {
-	    		$('#filename_miniature').val('');
-	    	}
-    	} else {
-    		$('#filename_miniature').val('');
-    	}
-    	checkExisting();
+        suggest = '';
+        if (this.value) {
+            var parts = suggestFilename(this.value);
+            if ($('#make_mini').prop('checked')) {
+                var suggest_mini = parts.base + '-mini';
+                if (parts.ext) {
+                    suggest_mini = suggest_mini + '.' + parts.ext;
+                }
+                $('#filename_miniature').val(suggest_mini);
+            } else {
+                $('#filename_miniature').val('');
+            }
+        } else {
+            $('#filename_miniature').val('');
+        }
+        checkFilenames();
     });
 
-	$("#make_mini").change(function(){
-		$("#filename_miniature").prop('disabled', !this.checked);
-		$("#filename").change();
-	});
+    $("#filename_miniature").change(checkFilenames);
+    $("#filename_miniature").bind("propertychange click keyup input paste", checkFilenames);
 
-	$("#fake_submit").click(function(){
-		var msg = "This is just a test!\n" +
-			"This mockup does not actually upload your image, but in principle it could. ";
-		if ($("#filename").val()) { 
-			msg = msg + "If it did, you could have linked it in your page as:\n\n /media/" +
-				$("#filename").val();
-			if ($("#filename_miniature").val()) {
-				msg = msg + "\n\nand for the miniature:\n\n /media/" + $("#filename_mini").val();
-			}
-		} else {
-			msg = msg + "That is, if you had actually selected an image. Try again!";
-		}
-		alert(msg);
-	});
+    $("#make_mini").change(function(){
+        $("#filename_miniature").prop('disabled', !this.checked);
+        $("#filename").change();
+    });
+
+    $("#fake_submit").click(function(){
+        var msg = "This is just a test!\n" +
+            "This mockup does not actually upload your image, but in principle it could. ";
+        if ($("#filename").val()) { 
+            msg = msg + "If it did, you could have linked it in your page as:\n\n /media/" +
+                $("#filename").val();
+            if ($("#filename_miniature").val()) {
+                msg = msg + "\n\nand for the miniature:\n\n /media/" + $("#filename_mini").val();
+            }
+        } else {
+            msg = msg + "That is, if you had actually selected an image. Try again!";
+        }
+        alert(msg);
+    });
 
     function imgError() {
         $("#make_mini").prop('checked', false);

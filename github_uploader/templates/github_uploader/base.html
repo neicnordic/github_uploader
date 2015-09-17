@@ -32,7 +32,7 @@
 </div>
 
 	<div class="intro-holder" style="max-width: 1250px; min-height: 257px; position: relative; margin: 0 auto; overflow: hidden;">
-		<div class="text" style="color: white; width: 430px; background: rgba(137,93,251,0.7); 
+		<div class="text" style="color: white; width: 430px; background: {% if PRODUCTION %} rgba(137,93,251,0.7) {% else %} rgba(241,140,1,0.87) {% endif %}; 
   font-size: 19px;
   line-height: 32px;
   color: #fff;
@@ -41,7 +41,7 @@
   bottom: 0;
   height: 106px;">
 			{% block banner %}
-			<p style="margin: 0.5em 0;"> <b>NeICweb GitHub Uploader</b>
+			<p style="margin: 0.5em 0;"> <b>NeICweb GitHub Uploader {% if PRODUCTION %} Devel {% endif %}</b>
 			<p style="margin: 0.5em 0;"> ~ Snazzier media uploads for the NeIC web ~ 
 			{% endblock %}
 		</div>

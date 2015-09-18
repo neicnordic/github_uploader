@@ -132,6 +132,7 @@ Size:
                         $('#hint_mini').text("Probably doesn't need a miniature.")
                     }
                     $('#make_mini').change();
+                    $('#filename').change();
                 }
                 image.onerror = function() {
                     $('#width').text("?");
@@ -141,8 +142,8 @@ Size:
                     $('#make_mini').prop('checked', false);
                     $('#hint_mini').text("This does not seem to be an image file, at least not one that this browser can display.")
                     $('#make_mini').change();
-            }
-                $('#filename').change();
+                    $('#filename').change();
+                 }
             }
             
             reader.readAsDataURL(input.files[0]);

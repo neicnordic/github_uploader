@@ -119,6 +119,7 @@ Size:
                     $('#width').text(this.width);
                     $('#height').text(this.height);
                     $('#fullsize').attr('src', image.src);
+                    $('#fullsize').css('display', 'inline');
                     if (this.width * this.height > max_pixels || filesize > max_bytes) {
                         $('#mini').attr('src', this.src);
                         $('#mini').css('display', 'inline');
@@ -135,6 +136,7 @@ Size:
                     $('#width').text("?");
                     $('#height').text("?");
                     $('#mini').css('display', 'none');
+                    $('#fullsize').css('display', 'none');
                     $('#make_mini').prop('checked', false);
                     $('#hint_mini').text("This does not seem to be an image file, at least not one that this browser can display.")
                 }

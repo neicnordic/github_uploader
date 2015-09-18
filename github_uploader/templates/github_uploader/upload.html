@@ -106,13 +106,13 @@ Size:
             var image = new Image();
             
             reader.onload = function(_file) {
-                var parts = suggestFilename(_file.name);
+                var parts = suggestFilename(input.files[0].name);
                 if (parts.ext) {
                     $('#filename').val(parts.base + '.' + parts.ext);
                 } else {
                     $('#filename').val(parts.base);
                 }
-                var filesize = _file.size;
+                var filesize = input.files[0].size;
                 $('#filesize').text(formatBytes(filesize, 2));
                 image.src = _file.target.result;
                 image.onload = function() {

@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.contrib.auth import backends
 from django.contrib.auth.models import User
+from django.contrib.messages import error
 import json
-
 import requests
-from github import Github
 
+from .github import get_access_token, get_username, is_member
 
 class GitHubOrgMemberBackend(backends.ModelBackend):
     """Github OAuth2 login handling, and org membership validation.
@@ -38,43 +38,25 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
             return None
         if reported_state != saved_state:
             return None
-        
-        # The user has successfully signed in to github, so exchange the 
-        # one-time code for an auth token, and proceed to check org membership.
-        params = dict(
-            client_id=settings.GITHUB_CLIENT_ID,
-            client_secret=settings.GITHUB_CLIENT_SECRET,
-            code=code,
-            state=saved_state,
-            )
-        headers = dict(Accept='application/json')
-        req = requests.post('https://github.com/login/oauth/access_token', params=params, headers=headers)
-        if req.status_code != 200:
+
+        requested_scope = sorted(settings.GITHUB_SCOPE.split(','))
+        granted_scope = sorted(request_with_github_code.session.pop('github_oauth_scopes', '').split(','))
+        if granted_scope != requested_scope:
+            error('You did not grant all permissions needed by this service.')
             return None
-        
-        try:
-            auth_info = json.loads(req.text)
-        except:
-            return None
-        access_token = auth_info.get('access_token', None)
-        token_type = auth_info.get('access_token', None)
+        access_token = get_access_token(code, saved_state)
         if not access_token:
             return None
-        if not token_type:
-            return None 
-        
-        github_client = Github(access_token)
-        github_user = github_client.get_user()
-        username = github_user.login 
+
+        # The user successfully signed in to GitHub and granted the necessary permissions.
+        # Are they members of the org?
+
+        username = get_username(access_token)
         if not username:
             return None
-        
-        member_of_org = False
-        for org in github_user.get_orgs():
-            if org.login == settings.GITHUB_ORGANIZATION:
-                member_of_org = True
-                break
-        if not member_of_org:
+        if not is_member(access_token, settings.GITHUB_ORGANIZATION):
+            msg = ('You are not a member of %s: ask your project leader or area coordinator to invite you.')
+            error(msg % settings.GITHUB_ORGANIZATION)
             return None
         
         # The user is member of the organization and is thus ok for us to let in.

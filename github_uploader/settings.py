@@ -29,6 +29,7 @@ from local_settings import MEDIA_ROOT
 
 GITHUB_ORGANIZATION = 'neicnordic'
 GITHUB_PATH = 'media'
+GITHUB_SCOPE = 'repo,read:org'
 MINIATURE_SIZE = (200, 0)
 
 # Application definition

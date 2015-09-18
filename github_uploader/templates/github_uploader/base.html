@@ -5,11 +5,12 @@
 <head>
 <meta charset="utf-8">
 
-<title>{% block fulltitle %}{% block title %}{% endblock %} - NeICweb GitHub Uploader {% endblock %}</title>
+<title>{% block fulltitle %}{% if not PRODUCTION %} TESTING - {% endif %}{% block title %}{% endblock %} - NeICweb GitHub Uploader {% endblock %}</title>
 {% block styles %}
 <link media="all" rel="stylesheet" type="text/css" href="/assets/css/base.css">
 <link media="all" rel="stylesheet" type="text/css" href="/assets/css/public.css">
 <link media="all" rel="stylesheet" href="/assets/css/all.css">
+{% if not PRODUCTION %}<link media="all" rel="stylesheet" href="/assets/css/all.css">{% endif %}
 <link media="all" rel="stylesheet" href="{% static "github/uploader.css" %}">
 {% endblock %}
 {% block scripts %}
@@ -18,7 +19,7 @@
 </head>
 <body>
 
-<header id="header" style="padding-top: 2px;"></header>
+<header id="header" style="padding-top: 5px;"></header>
 <section class="intro" style="background: #1c1725 url(/assets/img/{% if PRODUCTION %}bg-intro.jpg{% else %}banjo.jpg{% endif %}) repeat-x 50% 0; display: block; margin: 0 0 0px;">
 
 <div class="account-box" style="text-align: right; height: 25px; color: white; padding: 5px 1em;">
@@ -32,7 +33,7 @@
 </div>
 
 	<div class="intro-holder" style="max-width: 939px; min-height: 257px; position: relative; margin: 0 auto; overflow: hidden;">
-		<div class="text" style="color: white; width: 455px; background: {% if PRODUCTION %} rgba(137,93,251,0.7) {% else %} rgba(241,140,1,0.87) {% endif %}; 
+		<div class="text" style="color: white; width: 455px; background: {% if PRODUCTION %} rgba(137,93,251,0.7) {% else %} rgba(241,140,1,0.75) {% endif %}; 
   font-size: 19px;
   line-height: 32px;
   color: #fff;

@@ -1,6 +1,6 @@
 {% extends "github_uploader/base.html" %}
 
-{% block fulltitle %} NeICweb GitHub Uploader {% endblock %}
+{% block fulltitle %}{% if not PRODUCTION %} TESTING - {% endif %} NeICweb GitHub Uploader {% endblock %}
 
 {% block content %}
 <h1>Home</h1>

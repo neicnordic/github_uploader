@@ -103,28 +103,41 @@ Size:
     function updatePreview(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
+            var image = new Image();
             
-            reader.onload = function (e) {
-                $('#fullsize').attr('src', e.target.result);
-                var width = $('#fullsize').prop('width');
-                var height = $('#fullsize').prop('height');
-                var filesize = input.files[0].size;
-                $('#width').text(width);
-                $('#height').text(height);  
-                $('#filesize').text(formatBytes(filesize, 2));
-                if (width * height > max_pixels || filesize > max_bytes) {
-                    $('#mini').attr('src', e.target.result);
-                    $('#mini').css('display', 'inline');
-                    $('#make_mini').prop('checked', true);
-                    $('#hint_mini').text("Could probably use a miniature.")
-                } else {
-                    $('#filename_miniature').attr('value', '');
-                    $('#make_mini').prop('checked', false);
-                    $('#mini').css('display', 'none');
-                    $('#hint_mini').text("Probably doesn't need a miniature.")
-                }
+            reader.onload = function(_file) {
                 var parts = suggestFilename(input.files[0].name);
-                $('#filename').val(parts.base + '.' + parts.ext);
+                if (parts.ext) {
+                    $('#filename').val(parts.base + '.' + parts.ext);
+                } else {
+                    $('#filename').val(parts.base);
+                }
+                var filesize = input.files[0].size;
+                $('#filesize').text(formatBytes(filesize, 2));
+                image.src = _file.target.result;
+                image.onload = function() {
+                    $('#width').text(this.width);
+                    $('#height').text(this.height);
+                    $('#fullsize').attr('src', image.src);
+                    if (this.width * this.height > max_pixels || filesize > max_bytes) {
+                        $('#mini').attr('src', this.src);
+                        $('#mini').css('display', 'inline');
+                        $('#make_mini').prop('checked', true);
+                        $('#hint_mini').text("Could probably use a miniature.")
+                    } else {
+                        $('#filename_miniature').attr('value', '');
+                        $('#make_mini').prop('checked', false);
+                        $('#mini').css('display', 'none');
+                        $('#hint_mini').text("Probably doesn't need a miniature.")
+                    }
+                }
+                image.onerror = function() {
+                    $('#width').text("?");
+                    $('#height').text("?");
+                    $('#mini').css('display', 'none');
+                    $('#make_mini').prop('checked', false);
+                    $('#hint_mini').text("This does not seem to be an image file, at least not one that this browser can display.")
+                }
                 $('#filename').change();
                 $('#make_mini').change();
             }

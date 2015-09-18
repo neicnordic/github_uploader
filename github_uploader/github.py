@@ -2,7 +2,7 @@ from django.conf import settings
 import json
 import requests
 
-def get_access_token(code, state):
+def get_auth_info(code, state):
     """Exchange a GitHub one-time auth code for an access token."""
     url = 'https://github.com/login/oauth/access_token'
     params = dict(
@@ -17,10 +17,10 @@ def get_access_token(code, state):
         return None
 
     try:
-        auth_info = json.loads(req.text)['access_token']
+        return json.loads(req.text)
     except:
         return None
-
+    
 def is_member(access_token, organization):
     url = 'https://api.github.com/user/orgs'
     headers = dict(

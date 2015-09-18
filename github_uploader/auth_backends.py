@@ -5,7 +5,7 @@ from django.contrib.messages import error
 import json
 import requests
 
-from .github import get_access_token, get_username, is_member
+from .github import get_auth_info, get_username, is_member
 
 class GitHubOrgMemberBackend(backends.ModelBackend):
     """Github OAuth2 login handling, and org membership validation.
@@ -39,13 +39,18 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
         if reported_state != saved_state:
             return None
 
+        auth_info = get_auth_info(code, saved_state)
+        if not auth_info:
+            return None
+
+        access_token = auth_info.get('access_token', None)
+        if not access_token:
+            return None
+
+        granted_scope = sorted(auth_info.get('scope', '').split(','))        
         requested_scope = sorted(settings.GITHUB_SCOPE.split(','))
-        granted_scope = sorted(request_with_github_code.session.pop('github_oauth_scopes', '').split(','))
         if granted_scope != requested_scope:
             error(request_with_github_code, 'You did not grant all permissions needed by this service.')
-            return None
-        access_token = get_access_token(code, saved_state)
-        if not access_token:
             return None
 
         # The user successfully signed in to GitHub and granted the necessary permissions.

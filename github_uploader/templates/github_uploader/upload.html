@@ -106,13 +106,13 @@ Size:
             var image = new Image();
             
             reader.onload = function(_file) {
-                var parts = suggestFilename(input.files[0].name);
+                var parts = suggestFilename(_file.name);
                 if (parts.ext) {
                     $('#filename').val(parts.base + '.' + parts.ext);
                 } else {
                     $('#filename').val(parts.base);
                 }
-                var filesize = input.files[0].size;
+                var filesize = _file.size;
                 $('#filesize').text(formatBytes(filesize, 2));
                 image.src = _file.target.result;
                 image.onload = function() {
@@ -131,6 +131,7 @@ Size:
                         $('#mini').css('display', 'none');
                         $('#hint_mini').text("Probably doesn't need a miniature.")
                     }
+                    $('#make_mini').change();
                 }
                 image.onerror = function() {
                     $('#width').text("?");
@@ -139,9 +140,9 @@ Size:
                     $('#fullsize').css('display', 'none');
                     $('#make_mini').prop('checked', false);
                     $('#hint_mini').text("This does not seem to be an image file, at least not one that this browser can display.")
-                }
+                    $('#make_mini').change();
+            }
                 $('#filename').change();
-                $('#make_mini').change();
             }
             
             reader.readAsDataURL(input.files[0]);

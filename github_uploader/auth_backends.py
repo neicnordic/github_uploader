@@ -42,7 +42,7 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
         requested_scope = sorted(settings.GITHUB_SCOPE.split(','))
         granted_scope = sorted(request_with_github_code.session.pop('github_oauth_scopes', '').split(','))
         if granted_scope != requested_scope:
-            error('You did not grant all permissions needed by this service.')
+            error(request_with_github_code, 'You did not grant all permissions needed by this service.')
             return None
         access_token = get_access_token(code, saved_state)
         if not access_token:
@@ -55,8 +55,8 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
         if not username:
             return None
         if not is_member(access_token, settings.GITHUB_ORGANIZATION):
-            msg = ('You are not a member of %s: ask your project leader or area coordinator to invite you.')
-            error(msg % settings.GITHUB_ORGANIZATION)
+            msg = 'You are not a member of %s: ask your project leader or area coordinator to invite you.'
+            error(request_with_github_code, msg % settings.GITHUB_ORGANIZATION)
             return None
         
         # The user is member of the organization and is thus ok for us to let in.

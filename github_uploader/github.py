@@ -2,7 +2,7 @@ from django.conf import settings
 import json
 import requests
 
-GITHUB_TIMEOUT = settings.get('GITHUB_TIMEOUT', 10)
+GITHUB_TIMEOUT = getattr(settings, 'GITHUB_TIMEOUT', 10)
 
 def get_auth_info(code, state):
     """Exchange a GitHub one-time auth code for an access token."""

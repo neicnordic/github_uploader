@@ -60,7 +60,9 @@ def authorize(request):
 def logout(request):
     if request.method == 'POST':
         revoked = revoke_access_token(request.session['github_access_token'])
-        if not revoked:
+        if revoked:
+            messages.success(request, 'GitHub authorizations successfully revoked.')
+        else:
             msg = mark_safe(
                 'Could not revoke GitHub authorizations. Please ' 
                 '<a href="https://github.com/settings/applications">'

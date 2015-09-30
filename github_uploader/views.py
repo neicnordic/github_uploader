@@ -20,7 +20,7 @@ from urllib import urlencode
 import json
 
 from decorators import require_nothing, require_login
-from github import revoke_access_token
+from github import successful_revocation
 
 @require_nothing
 def top(request):
@@ -59,8 +59,9 @@ def authorize(request):
 @require_nothing
 def logout(request):
     if request.method == 'POST':
-        revoked = revoke_access_token(request.session['github_access_token'])
+        revoked = successful_revocation(request.session['github_access_token'])
         if revoked:
+            del request.session['github_access_token']
             messages.success(request, 'GitHub authorizations successfully revoked.')
         else:
             msg = mark_safe(

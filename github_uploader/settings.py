@@ -107,4 +107,5 @@ LOGIN_URL = '/int/github/login/'
 LOGOUT_URL = '/int/github/logout/'
 
 # Session management:
-SESSION_COOKIE_AGE = 9*60*60 # Arbitrarily chosen a bit over one working day.
+SESSION_COOKIE_AGE = 9 * 60 * 60 # Arbitrarily chosen a bit over one working day.
+GITHUB_REVOCATION_RETRY_PERIOD = 7 * 24 * 60 * 60 # Arbitrarily chosen to a week.

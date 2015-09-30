@@ -4,7 +4,7 @@ from django.contrib.sessions.models import Session
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from github_uploader.github import revoke_access_token 
+from github_uploader.github import successful_revocation, revoke_access_token
 
 class Command(BaseCommand):
     help = (
@@ -23,25 +23,50 @@ class Command(BaseCommand):
             self.stderr.write("Session engine '%s' doesn't support clearing "
                               "expired sessions.\n" % settings.SESSION_ENGINE)
             return
+        now = timezone.now()
         expired = []
         active_tokens = set([])
-        active_users = set([])
+        active_userids = set([])
         for session in Session.objects.all():
             decoded = session.get_decoded()
-            if session.expire_date < timezone.now():
+            if session.expire_date < now:
                 expired.append(session)
             else:
-                active_tokens.add(decoded['github_access_token'])
-                active_users.add(decoded['_auth_user_id'])
+                token = decoded.get('github_access_token', None)
+                if token:
+                    active_tokens.add(token)
+                    active_userids.add(decoded['_auth_user_id'])
         for session in expired:
             decoded = session.get_decoded()
-            username = User.objects.filter(pk=decoded['_auth_user_id'])[0].username
-            token = decoded['github_access_token']
-            if token not in active_tokens:
-                revoked = revoke_access_token(token)
-                if revoked:
-                    self.stdout.write('Non-active access token revoked for user %s.\n' % username)
-                    session.delete()
-                    continue
-                self.stderr.write('Could not revoke non-active access token for user %s. Did they revoke it themselves?\n' % username)
+            token = decoded.get('github_access_token', None)
+            userid = decoded['_auth_user_id']
+            if not token or token in active_tokens:
+                session.delete()
+                continue
+            # This expired session has a token that is/should be revoked. 
+            username = User.objects.filter(pk=userid)[0].username
+            try:
+                req = revoke_access_token(token)
+            except:
+                self.stderr.write('Fatal: Cannot connect with GitHub. Aborting.\n')
+                return
+            if req.status_code == 404:
+                # GitHub API responds to basic auth failure with 404, not to disclose 
+                # presence of user data.
+                # https://developer.github.com/v3/auth/#basic-authentication 
+                self.stderr.write('Fatal: GitHub authentication failure. Aborting.\n')
+                return
+            if req.status_code == 204: # 204 No Content
+                session.delete()
+                self.stdout.write('Non-active access token revoked for user %s.\n' % username)
+                continue
+            if session.expire_date + settings.GITHUB_REVOCATION_RETRY_PERIOD < now: 
+                session.delete()
+                self.stderr.write(
+                    'Could not revoke non-active access token for user %s (status: %s). '
+                    'Retry period has expired. Expired session deleted.\n' % (username, req.status_code))
+                continue
+            self.stderr.write(
+                'Could not revoke non-active access token for user %s (status: %s). '
+                'Keeping expired session for retry later.\n' % (username, req.status_code))
                     

@@ -2,6 +2,8 @@ from django.conf import settings
 import json
 import requests
 
+GITHUB_TIMEOUT = settings.get('GITHUB_TIMEOUT', 10)
+
 def get_auth_info(code, state):
     """Exchange a GitHub one-time auth code for an access token."""
     url = 'https://github.com/login/oauth/access_token'
@@ -12,7 +14,7 @@ def get_auth_info(code, state):
         state=state,
         )
     headers = dict(Accept='application/json')
-    req = requests.post(url, params=params, headers=headers)
+    req = requests.post(url, params=params, headers=headers, timeout=GITHUB_TIMEOUT)
     if req.status_code != 200:
         return None
 
@@ -26,7 +28,7 @@ def is_member(access_token, organization):
     headers = dict(
         Accept='application/json',
         Authorization='token ' + access_token)
-    req = requests.get(url, headers=headers)
+    req = requests.get(url, headers=headers, timeout=GITHUB_TIMEOUT)
     if req.status_code != 200:
         return False
 
@@ -35,13 +37,12 @@ def is_member(access_token, organization):
     except:
         return False
 
-
 def get_username(access_token):
     url = 'https://api.github.com/user'
     headers = dict(
         Accept='application/json',
         Authorization='token ' + access_token)
-    req = requests.get(url, headers=headers)
+    req = requests.get(url, headers=headers, timeout=GITHUB_TIMEOUT)
     if req.status_code != 200:
         return None
 
@@ -54,5 +55,8 @@ def revoke_access_token(token):
     gh_revoke_url = ('https://api.github.com/applications/%s/tokens/%s' % 
         (settings.GITHUB_CLIENT_ID, token))
     gh_auth = (settings.GITHUB_CLIENT_ID, settings.GITHUB_CLIENT_SECRET)
-    req = requests.delete(gh_revoke_url, auth=gh_auth)
+    return requests.delete(gh_revoke_url, auth=gh_auth, timeout=GITHUB_TIMEOUT)
+
+def successful_revocation(token):
+    req = revoke_access_token(token)
     return req.status_code == 204 # 204 No Content

@@ -54,8 +54,17 @@ class Command(BaseCommand):
                 # GitHub API responds to basic auth failure with 404, not to disclose 
                 # presence of user data.
                 # https://developer.github.com/v3/auth/#basic-authentication 
-                self.stderr.write('Fatal: GitHub authentication failure. Aborting.\n')
-                return
+                # However, we will err on the side of deleting unwanted secrets, and boldly 
+                # assume this is a proper 404 Not Found. If it is not, and this is in fact an auth 
+                # failure, then that will be readily apparent since breakage will be abundant
+                # since that means either GitHub is broken or our client secrets aren't good 
+                # anymore. This will be resolved by manual intervention, for example by revoking 
+                # all user tokens and getting new secrets. 
+                # The only sensible action at this point is to treat this 404 as already revoked,
+                # and delete the expired session. 
+                session.delete()
+                self.stdout.write('Found already revoked token for user %s.\n' % username)
+                continue
             if req.status_code == 204: # 204 No Content
                 session.delete()
                 self.stdout.write('Non-active access token revoked for user %s.\n' % username)

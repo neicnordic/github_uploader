@@ -23,19 +23,25 @@ class Command(BaseCommand):
             self.stderr.write("Session engine '%s' doesn't support clearing "
                               "expired sessions.\n" % settings.SESSION_ENGINE)
             return
-        expired = Session.objects.filter(expire_date__lt=timezone.now())
-        for session in expired:
-            revoked = revoke_access_token(session['github_access_token'])
-            if revoked:
-                session.delete()
-                continue
+        expired = []
+        active_tokens = set([])
+        active_users = set([])
+        for session in Session.objects.all():
             decoded = session.get_decoded()
-            username = None
-            try:
-                username = User.objects.filter(pk=decoded['_auth_user_id'])[0]
-            except:
-                pass
-            msg = "Could not revoke access token for session " + session.session_key
-            if username:
-                msg += " for user " + username
-            self.stderr.write(msg + ".\n")
+            if session.expire_date < timezone.now():
+                expired.append(session)
+            else:
+                active_tokens.add(decoded['github_access_token'])
+                active_users.add(decoded['_auth_user_id'])
+        for session in expired:
+            decoded = session.get_decoded()
+            username = User.objects.filter(pk=decoded['_auth_user_id'])[0].username
+            token = decoded['github_access_token']
+            if token not in active_tokens:
+                revoked = revoke_access_token(token)
+                if revoked:
+                    self.stdout.write('Non-active access token revoked for user %s.\n' % username)
+                    session.delete()
+                    continue
+                self.stderr.write('Could not revoke non-active access token for user %s. Did they revoke it themselves?\n' % username)
+                    

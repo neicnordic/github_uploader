@@ -1,5 +1,3 @@
-from importlib import import_module
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
@@ -15,8 +13,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, **options):
-        engine = import_module()
-        # Hard coded, because the "right" way of finding out if 
+        # Backend check is hard coded, because the "right" way of finding out if 
         # engine.SessionStore.clear_expired() is supported by the current  
         # backend is to call it, and catch exception if it isn't, but I 
         # don't want to call it. I want to do it myself, to be able to do 

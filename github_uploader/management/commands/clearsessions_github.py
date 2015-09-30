@@ -4,7 +4,7 @@ from django.contrib.sessions.models import Session
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from github_uploader.github import successful_revocation, revoke_access_token
+from github_uploader.github import revoke_access_token
 
 class Command(BaseCommand):
     help = (
@@ -26,7 +26,6 @@ class Command(BaseCommand):
         now = timezone.now()
         expired = []
         active_tokens = set([])
-        active_userids = set([])
         for session in Session.objects.all():
             decoded = session.get_decoded()
             if session.expire_date < now:
@@ -35,7 +34,6 @@ class Command(BaseCommand):
                 token = decoded.get('github_access_token', None)
                 if token:
                     active_tokens.add(token)
-                    active_userids.add(decoded['_auth_user_id'])
         for session in expired:
             decoded = session.get_decoded()
             token = decoded.get('github_access_token', None)
@@ -57,8 +55,9 @@ class Command(BaseCommand):
                 # However, we will err on the side of deleting unwanted secrets, and boldly 
                 # assume this is a proper 404 Not Found. If it is not, and this is in fact an auth 
                 # failure, then that will be readily apparent since breakage will be abundant
+                # in all other places of this service as well, 
                 # since that means either GitHub is broken or our client secrets aren't good 
-                # anymore. This will be resolved by manual intervention, for example by revoking 
+                # anymore. This must be resolved by manual intervention, for example by revoking 
                 # all user tokens and getting new secrets. 
                 # The only sensible action at this point is to treat this 404 as already revoked,
                 # and delete the expired session. 

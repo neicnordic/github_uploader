@@ -41,7 +41,7 @@ def login(request):
         params = dict(
             client_id=settings.GITHUB_CLIENT_ID,
             redirect_uri=request.build_absolute_uri(reverse(authorize)),
-            scope="repo,read:org",
+            scope="public_repo,read:org",
             state=state)
         return redirect('https://github.com/login/oauth/authorize?' + urlencode(params))
     return render(request, 'github_uploader/login.html')

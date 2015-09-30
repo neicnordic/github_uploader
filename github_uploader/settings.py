@@ -26,6 +26,7 @@ from local_settings import GITHUB_REPO
 from local_settings import GITHUB_CLIENT_ID
 from local_settings import GITHUB_CLIENT_SECRET
 from local_settings import MEDIA_ROOT
+from local_settings import SESSION_COOKIE_SECURE
 
 GITHUB_ORGANIZATION = 'neicnordic'
 GITHUB_PATH = 'media'
@@ -104,3 +105,6 @@ STATIC_URL = '/assets/int/github/'
 
 LOGIN_URL = '/int/github/login/'
 LOGOUT_URL = '/int/github/logout/'
+
+# Session management:
+SESSION_COOKIE_AGE = 9*60*60 # Arbitrarily chosen a bit over one working day.

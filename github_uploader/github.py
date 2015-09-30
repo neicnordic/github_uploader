@@ -49,3 +49,10 @@ def get_username(access_token):
         return json.loads(req.text)['login']
     except:
         return None
+
+def revoke_access_token(token):
+    gh_revoke_url = ('https://api.github.com/applications/%s/tokens/%s' % 
+        (settings.GITHUB_CLIENT_ID, token))
+    gh_auth = (settings.GITHUB_CLIENT_ID, settings.GITHUB_CLIENT_SECRET)
+    req = requests.delete(gh_revoke_url, auth=gh_auth)
+    return req.status_code == 204 # 204 No Content

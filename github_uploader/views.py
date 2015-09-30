@@ -13,12 +13,14 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.forms import CharField, FileField, Form, ImageField
 from django.shortcuts import redirect, render
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from PIL import Image
 from urllib import urlencode
 import json
 
 from decorators import require_nothing, require_login
+from github import revoke_access_token
 
 @require_nothing
 def top(request):
@@ -49,7 +51,7 @@ def authorize(request):
     user = auth.authenticate(request_with_github_code=request)
     if user and user.is_active:
         auth.login(request, user)
-        messages.success(request, 'You are now logged in. Please enjoy responsibly.')
+        messages.success(request, 'You are now logged in. Please enjoy responsibly, and log out when you are done.')
         return redirect(upload)
     messages.error(request, 'Login failed.')
     return redirect(login)
@@ -57,6 +59,14 @@ def authorize(request):
 @require_nothing
 def logout(request):
     if request.method == 'POST':
+        revoked = revoke_access_token(request.session['github_access_token'])
+        if not revoked:
+            msg = mark_safe(
+                'Could not revoke GitHub authorizations. Please ' 
+                '<a href="https://github.com/settings/applications">'
+                'review your application authorizations on GitHub</a> ' 
+                'and manually click Revoke for any authorizations you no longer need or do not recognize.')
+            messages.error(request, msg)
         auth.logout(request)
         messages.success(request, 'You are now logged out.')
         return redirect(top)
@@ -192,7 +202,7 @@ def upload(request):
     params = dict(file=filename)
     success = do_upload(access_token, f, filename)
     if not success:
-        messages.error(request, 'File upload failed. Please check %s.' % tree_link)
+        messages.error(request, mark_safe('File upload failed. Please check %s.' % tree_link))
         return render(request, 'github_uploader/upload.html', context)
 
     messages.success(request, 'File %s successfully uploaded.' % filename)
@@ -202,7 +212,7 @@ def upload(request):
         miniature = form.cleaned_data['miniature']
         success = do_upload(access_token, miniature, filename_miniature)
         if not success:
-            messages.error(request, 'Miniature file upload failed. Please check %s.' % tree_link)
+            messages.error(request, mark_safe('Miniature file upload failed. Please check %s.' % tree_link))
             return render(request, 'github_uploader/upload.html', context)
 
         messages.success(request, 'Miniature file %s successfully uploaded.' % filename_miniature)

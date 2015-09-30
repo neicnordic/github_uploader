@@ -7,6 +7,10 @@
 
 <p>Log out when you are done to ensure your account and our website stay safe.
 
+<p>When logging out, this service will also ask GitHub to revoke the authorizations 
+you granted when you logged in, to make sure noone can use these authorizations to 
+act in your name behind your back. 
+
 <form method="POST">
 {% csrf_token %}
 <input type="submit" value="Log out">

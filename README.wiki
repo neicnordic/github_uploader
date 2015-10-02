@@ -4,6 +4,9 @@ GitHub has no web GUI to let users upload binary files to repositories.
 This is a tiny django app that uses the GitHub API v3 and OAuth2 to let members of a GitHub 
 organization push binary files like images to a specific directory in a GitHub repository.
 
+This app was made to provide a convenient way for non-git-savvy people to add media to the 
+NeIC jekyll website, the source of which is hosted on GitHub.
+
 == Features ==
 * Preview before upload.
 * Makes miniatures of uploaded images on request.

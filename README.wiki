@@ -22,3 +22,6 @@ NeIC jekyll website, the source of which is hosted on GitHub.
 * Configure webserver to serve this app over https.
 * Create local_settings.py in a dir outside of the repo, on PYTHONPATH, inaccessible to outsiders.
 * Edit settings.py. Keep all secrets and local config to local_settings.py.
+
+== Further reading ==
+More info on the NeIC [https://wiki.neic.no/int/Webserver_manual internal wiki].

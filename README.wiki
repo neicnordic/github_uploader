@@ -8,7 +8,7 @@ This app was made to provide a convenient way for non-git-savvy people to add me
 NeIC jekyll website, the source of which is hosted on GitHub.
 
 == Features ==
-* Preview before upload.
+* Preview of images before upload.
 * Makes miniatures of uploaded images on request.
 * Does not allow delete or overwrite.
 

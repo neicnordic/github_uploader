@@ -1,0 +1,21 @@
+= github_uploader =
+GitHub has no web GUI to let users upload binary files to repositories.
+
+This is a tiny django app that uses the GitHub API v3 and OAuth2 to let members of a GitHub 
+organization push binary files like images to a specific directory in a GitHub repository.
+
+== Features ==
+* Preview before upload.
+* Makes miniatures of uploaded images on request.
+* Does not allow delete or overwrite.
+
+== Requirements ==
+* HTTPS capable webserver.
+* Python2 >= v2.7
+* Python modules: django, requests and pillow.
+
+== Installation ==
+* Install dependencies.
+* Configure webserver to serve this app over https.
+* Create local_settings.py in a dir outside of the repo, on PYTHONPATH, inaccessible to outsiders.
+* Edit settings.py. Keep all secrets and local config to local_settings.py.

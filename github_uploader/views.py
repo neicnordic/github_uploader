@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.forms import CharField, FileField, Form, ImageField
-from django.shortcuts import redirect, render
+from django.shortcuts import Http404, redirect, render
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from PIL import Image
@@ -77,6 +77,27 @@ def logout(request):
     
 ### Uploads ###
 
+MINIATURE_SIZE = getattr(settings, 'MINIATURE_SIZE', (200, 0))
+if MINIATURE_SIZE[0] == MINIATURE_SIZE[1] == 0:
+    raise ValueError('django.conf.settings.MINIATURE_SIZE cannot be (0, 0).')
+
+def get_repoconf(reponame):
+    # Raises Exceptions if app is misconfigured, which is desirable. We don't 
+    # want to serve requests while being misconfigured.
+    conf = settings.GITHUB_UPLOADER_REPOS[reponame]
+    conf[reponame] 
+    conf.setdefault('branch', 'master')
+    path = conf.setdefault('path', settings.GITHUB_UPLOADER_PATH)
+    conf.setdefault('media_root', os.path.join(settings.MEDIA_ROOT, reponame, path))
+    conf.setdefault('miniature_size', MINIATURE_SIZE)
+    return conf 
+
+def get_tree_url(repoconf):
+    return "https://github.com/%(repo)s/tree/%(branch)s/%(path)s" % repoconf
+
+def get_tree_link(repoconf):
+    return '<a href="%s">GitHub tree</a>' % get_tree_url(repoconf)
+
 class FilenameField(CharField):
     """A draconian filename field."""
     default_error_messages = {
@@ -91,10 +112,6 @@ class FilenameField(CharField):
             raise ValidationError(self.error_messages['invalid_filename'] % ''.join(illegal))
         if data.startswith('.'):
             raise ValidationError(self.error_messages['dotfile'])
-
-MINIATURE_SIZE = getattr(settings, 'MINIATURE_SIZE', (200, 0))
-if MINIATURE_SIZE[0] == MINIATURE_SIZE[1] == 0:
-    raise ValueError('django.conf.settings.MINIATURE_SIZE cannot be (0, 0).')
 
 class UploadForm(Form):
     file = FileField()
@@ -174,27 +191,30 @@ def do_upload(access_token, file, filename):
     r = requests.put(url, json.dumps(data), headers=headers)
     return r.status_code == 201 # CREATED
 
-tree_url = "https://github.com/%s/%s/tree/master/%s" % ( 
-    settings.GITHUB_ORGANIZATION,
-    settings.GITHUB_REPO,
-    settings.GITHUB_PATH
-    )
-
-tree_link = '<a href="%s">GitHub tree</a>' % tree_url
-
 @require_login
-def upload(request):
+def upload(request, reponame):
     """Media upload view; form handling logic for media uploads."""
-    existing = os.listdir(settings.MEDIA_ROOT)
-    context = dict(existing_json=json.dumps(existing))
+    if not reponame in settings.GITHUB_UPLOADER_REPOS:
+        raise Http404
+    repoconf = get_repoconf(reponame)
+    
+    context = dict()
+    if repoconf['media_root']:
+        existing = os.listdir(repoconf['media_root'])
+        context.update(existing_json=json.dumps(existing))
+        
     ok_to_upload = False
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
         ok_to_upload = form.is_valid() 
         context['form'] = form
 
+    templates = [
+        'github_uploader/%s/upload.html' % reponame, 
+        'github_uploader/upload.html']
+
     if not ok_to_upload:
-        return render(request, 'github_uploader/upload.html', context)
+        return render(request, templates, context)
     
     # Ok to upload
     access_token = request.session['github_access_token']
@@ -206,7 +226,7 @@ def upload(request):
     success = do_upload(access_token, f, filename)
     if not success:
         messages.error(request, mark_safe('File upload failed. Please check %s.' % tree_link))
-        return render(request, 'github_uploader/upload.html', context)
+        return render(request, templates, context)
 
     messages.success(request, 'File %s successfully uploaded.' % filename)
 
@@ -216,7 +236,7 @@ def upload(request):
         success = do_upload(access_token, miniature, filename_miniature)
         if not success:
             messages.error(request, mark_safe('Miniature file upload failed. Please check %s.' % tree_link))
-            return render(request, 'github_uploader/upload.html', context)
+            return render(request, templates, context)
 
         messages.success(request, 'Miniature file %s successfully uploaded.' % filename_miniature)
     

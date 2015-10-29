@@ -22,16 +22,14 @@ from local_settings import PRODUCTION
 from local_settings import DATABASES
 from local_settings import STATIC_ROOT
 from local_settings import ALLOWED_HOSTS
-from local_settings import GITHUB_REPO
-from local_settings import GITHUB_CLIENT_ID
-from local_settings import GITHUB_CLIENT_SECRET
+from local_settings import GITHUB_UPLOADER_PATH
+from local_settings import GITHUB_UPLOADER_SCOPE
+from local_settings import GITHUB_UPLOADER_REPOS
+from local_settings import GITHUB_UPLOADER_CLIENT_ID
+from local_settings import GITHUB_UPLOADER_CLIENT_SECRET
+from local_settings import GITHUB_UPLOADER_MINIATURE_SIZE
 from local_settings import MEDIA_ROOT
 from local_settings import SESSION_COOKIE_SECURE
-
-GITHUB_ORGANIZATION = 'neicnordic'
-GITHUB_PATH = 'media'
-GITHUB_SCOPE = 'public_repo,read:org'
-MINIATURE_SIZE = (200, 0)
 
 # Application definition
 

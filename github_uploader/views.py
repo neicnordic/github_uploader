@@ -237,7 +237,7 @@ def upload(request, reponame):
             current_reponame == reponame):
         return login_redirect(request, reponame)
 
-    context = dict(reponame=reponame, repo=repoconf)
+    context = dict(STATIC_URL=repoconf['static_url'], reponame=reponame, repo=repoconf)
     templates = get_templates(reponame, 'upload.html')
     
     if repoconf['media_root']:

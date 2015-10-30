@@ -1,6 +1,6 @@
 # Installation specific settings.
 
-### Warning: outdated example, not reflecting the multirepo setup. See views.py for docs. 
+### Warning: incomplete example. See views.py for docs. 
 
 #
 # This is an example config. 
@@ -23,11 +23,23 @@ DATABASES = {
     }
 }
 
-GITHUB_REPO = 'neicweb-devel'
+STATIC_ROOT = '/Users/joel/neicwebserver/serverdirs/static/'
+MEDIA_ROOT = '/Users/joel/neicwebserver/serverdirs/'
 
-# Get these from the github application page
-GITHUB_CLIENT_ID = # Typically 20 hexchars.  
-GITHUB_CLIENT_SECRET = # Typically 40 hexchars.
+GITHUB_UPLOADER_REPOS = {
+    'neicweb': {
+        'full_name': 'neicnordic/neicweb',
+        'description': 'NeIC official website',
+        },
+    'neicweb-devel': {
+        'full_name': 'neicnordic/neicweb-devel',
+        'description': 'Sandbox for NeIC website development',
+        },
+    'ahm16': {
+        'full_name': 'neicnordic/ahm16',
+        'description': 'NeIC all-hands meeting 2016',
+        },
+    }
 
-STATIC_ROOT = '/var/www/github_uploader/static/'
-MEDIA_ROOT = '/var/www/html/media/'
+GITHUB_UPLOADER_REPO_TEMPLATE_DIRS = []
+GITHUB_UPLOADER_REPO_STATICFILES_DIRS = []

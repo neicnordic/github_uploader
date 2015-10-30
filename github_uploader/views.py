@@ -176,7 +176,7 @@ class UploadForm(Form):
 
             image = Image.open(self.cleaned_data['file'])
             orig_width, orig_height = image.size
-            width, height = self.min
+            width, height = self.miniature_size
             if orig_width <= width or orig_height <= height:
                 raise ValidationError(_("Image is too small, miniatures should be at least %sx%spx." % self.miniature_size))
             if width == 0:

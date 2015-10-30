@@ -87,7 +87,7 @@ def login_redirect(request, reponame):
     request.session['github_uploader_reponame'] = reponame
     request.session['github_uploader_scope'] = repoconf['scope']
     params = dict(
-        client_id=settings.GITHUB_CLIENT_ID,
+        client_id=settings.GITHUB_UPLOADER_CLIENT_ID,
         redirect_uri=request.build_absolute_uri(reverse(authorize)),
         scope=repoconf['scope'],
         state=state)

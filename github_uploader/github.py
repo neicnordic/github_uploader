@@ -76,8 +76,9 @@ def has_push_permission(access_token, repo_full_name):
         for r in json.loads(req.text):
             if r['full_name'] == repo_full_name:
                 return r['permissions']['push']
-    finally:
+    except:
         return False
+    return False
 
 def get_username(access_token):
     url = 'https://api.github.com/user'

@@ -98,7 +98,7 @@ def authorize(request):
     if user:
         auth.login(request, user)
         messages.success(request, 'You are now logged in. Please enjoy responsibly, and log out when you are done.')
-        return redirect(upload, request.session.pop('github_uploader_reponame'))
+        return redirect(upload, request.session['github_uploader_reponame'])
     messages.error(request, 'Login failed.')
     return redirect(top)
 

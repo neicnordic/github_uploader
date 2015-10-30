@@ -69,7 +69,7 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
         if not username:
             return None
         
-        # The user is member of the organization and is thus ok for us to let in.
+        # The user has push permissions and is thus ok for us to let in.
         # We don't check for is_active(), since account management and auth should
         # be done on github. 
         

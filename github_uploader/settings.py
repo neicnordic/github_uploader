@@ -25,8 +25,9 @@ from local_settings import ALLOWED_HOSTS
 from local_settings import GITHUB_UPLOADER_REPOS
 from local_settings import GITHUB_UPLOADER_CLIENT_ID
 from local_settings import GITHUB_UPLOADER_CLIENT_SECRET
-from local_settings import GITHUB_UPLOADER_REPO_TEMPLATE_DIRS
-from local_settings import GITHUB_UPLOADER_REPO_STATICFILES_DIRS
+from local_settings import EXTRA_TEMPLATE_DIRS
+from local_settings import STATICFILES_DIRS
+from local_settings import STATIC_URL
 from local_settings import MEDIA_ROOT
 from local_settings import SESSION_COOKIE_SECURE
 
@@ -63,7 +64,7 @@ ROOT_URLCONF = 'github_uploader.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': GITHUB_UPLOADER_REPO_TEMPLATE_DIR,
+        'DIRS': EXTRA_TEMPLATE_DIRS,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -97,10 +98,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-MEDIA_URL = '/media/'
-STATIC_URL = '/assets/int/github/'
-STATICFILES_DIRS = GITHUB_UPLOADER_REPO_STATICFILES_DIRS
-
 # Session management:
 SESSION_COOKIE_AGE = 9 * 60 * 60 # Arbitrarily chosen a bit over one working day.
 GITHUB_REVOCATION_RETRY_PERIOD = 7 * 24 * 60 * 60 # Arbitrarily chosen to a week.
+

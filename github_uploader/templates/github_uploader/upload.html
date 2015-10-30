@@ -4,7 +4,7 @@
 {% block title %} Upload {% endblock %}
 
 {% block scripts %}{{ block.super }}
-<script type="text/javascript" src="{% static 'github/remove_diacritics.js' %}"></script>
+<script type="text/javascript" src="{{ STATIC_URL}}js/remove_diacritics.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -18,9 +18,9 @@
 <p> That said, this is the development system, so any mistakes here will not end up on our website proper. But still, no monkey business, ok? 
 {% endif %}
 
-<p> Note that at present this service can only add new files. Not change or delete them. 
-
-<p> If something goes wrong you are welcome to contact any NeIC techie, who are highly skilled and fully equipped to help you solve any problem in life. 
+<p><b>Presently, you can only upload new files using this service.</b> 
+To change, rename or delete files, you can use for example <a href="http://windows.github.com/">GitHub for Windows</a> 
+or command line git. If you run into trouble any NeIC technical staff can help you solve it. 
 
 <p>{{ form.non_field_errors }}
 
@@ -89,7 +89,7 @@ Size:
     max_pixels = 200 * 400;
     max_bytes = 250000;
     
-    existing = ["infj-lookout-hs-mini.jpg", "13-32-05-NeIC-Strategy-131008.pdf", "infj-lookout-hs.jpg", "130506-NeIC-MoU-signed-by-all.pdf", "test.txt", "150331-Open-position-announcement-NT1-future-operations.pdf", "glowing-mini.jpg", "2014-10-14-Open-position-announcement-NeIC_Support_EISCAT_3D_Project_lead_4.pdf", "2014-10-16-nordic-accounting-workshop.jpeg", "2014-prace-report-final.pdf", "JosepFlix-small.png", "ahm15-azab-host-mini.jpeg", "ahm15-azab-host.jpeg", "ahm15-group-photo.jpeg", "ahm15-mbti.jpeg", "antti-portrait.jpeg", "arc-logo.png", "boards-meet-mini.jpeg", "boards-meet.jpeg", "cognitus.jpg", "dan-street-mini.jpeg", "dan-street.jpeg", "dejan-small.jpeg", "eiscat-3d-aurora-mini.jpeg", "eiscat-3d-aurora.jpeg", "francesca-street-mini.jpeg", "francesca-street.jpeg", "frank-hanssen-mini.jpeg", "frank-hanssen.jpeg", "gerd-maswan-mini.jpeg", "gerd-maswan.jpeg", "glenna-kickoff-mini.jpeg", "glenna-kickoff.jpeg", "john-white-mountains.jpeg", "large_turnout_image_frontpage.jpg", "large_turnout_image_mini.jpg", "nancy-image.jpg", "nancy-image_mini.jpg", "glowing.jpg", "neic-2020-co-funding-proposal-cover-mini.png", "neic-flyer-2013.pdf", "neic-gen-folder-140516.pdf", "neic-tryggve-folder-140514.pdf", "rob-small.jpeg", "thomas-portrait-mini.jpeg", "tommi-at-work.jpeg", "tryggve-kickoff.jpeg"];
+    existing = {{ existing }};
     
     function formatBytes(bytes,decimals) {
         if(bytes == 0) return '0 Byte';

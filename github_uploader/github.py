@@ -2,6 +2,7 @@ import base64
 import os
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 import json
 import requests
 
@@ -12,10 +13,9 @@ if MINIATURE_SIZE[0] == MINIATURE_SIZE[1] == 0:
     raise ValueError('django.conf.settings.MINIATURE_SIZE cannot be (0, 0).')
 
 def get_repoconf(reponame):
-    # Raises Exceptions if app is misconfigured, which is desirable. We don't 
-    # want to serve requests while being misconfigured.
+    if not settings.GITHUB_UPLOADER_REPOS.get(reponame, {}).get('full_name', None):
+        raise ImproperlyConfigured('You are using the github_uploader app without having set the required full_name field for the %r repo.' % reponame)
     conf = settings.GITHUB_UPLOADER_REPOS[reponame]
-    conf[reponame] # This is to trigger exception if misconfigured
     conf.setdefault('description', '')
     conf.setdefault('hidden', False)
     conf.setdefault('scope', getattr(settings, 'GITHUB_UPLOADER_PATH', 'public_repo'))
@@ -23,9 +23,12 @@ def get_repoconf(reponame):
     path = conf.setdefault('path', getattr(settings, 'GITHUB_UPLOADER_PATH', 'media'))
     conf.setdefault('media_root', os.path.join(settings.MEDIA_ROOT, reponame, path))
     conf.setdefault('media_url', os.path.join(settings.MEDIA_URL, reponame, path))
-    conf.setdefault('static_url', os.path.join(settings.STATIC_URL, reponame))
+    conf.setdefault('static_url', getattr(settings, 'STATIC_URL', ''))
     conf.setdefault('miniature_size', MINIATURE_SIZE)
     return conf 
+
+if not getattr(settings, 'GITHUB_UPLOADER_REPOS', None):
+    raise ImproperlyConfigured('You are using the github_uploader app without having set the required GITHUB_UPLOADER_REPOS setting.')
 
 REPOS = dict((n, get_repoconf(n)) for n in settings.GITHUB_UPLOADER_REPOS)
 

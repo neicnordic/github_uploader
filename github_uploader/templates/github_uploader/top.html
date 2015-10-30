@@ -4,13 +4,24 @@
 
 {% block content %}
 <h1>Home</h1>
-<p>To be able to use this service you need a <a href="https://github.com/">GitHub account</a>, and be part 
-of the <a href="https://github.com/neicnordic">neicnordic organization</a> on GitHub. 
+<p>To be able to use this service you need a <a href="https://github.com/">GitHub account</a>, and have
+write access to the repositories you want to upload to. 
 
 <p>NeIC personnel are welcome to contact their project leader or area coordinator to get access.
 
-<h2>Shortcuts</h2>
-<ul>
-<li><a href="{% url "github_uploader.views.upload" %}">Upload</a>
-</ul>
+<p><b>Presently, you can only upload new files using this service.</b> 
+To change, rename or delete files, you can use for example <a href="http://windows.github.com/">GitHub for Windows</a> 
+or command line git. If you run into trouble, any NeIC technical staff can help you do this. 
+
+
+<h2>Repositories</h2>
+<div class="repolist">
+{% for reponame, repoconf in repos %}
+<dt><a href="{% url "github_uploader.views.upload" reponame %}">{{ reponame }}</a></dt>
+<dd>    
+    <a class="repolink" href="https://github.com/{{ repoconf.full_name }}">https://github.com/{{ repoconf.full_name }}</a><br/>
+    <span class="description">{{ repoconf.description }}</span>    
+</dd>
+{% endfor %}
+</div>
 {% endblock content %}

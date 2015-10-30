@@ -10,7 +10,7 @@ settings.GITHUB_UPLOADER_REPOS:
     reponame: most often the GitHub name of the repo.
     
     repoconf is dict of key:value
-    full_name: url components "user/reponame", like "neicnordic/neicweb". Required.
+    full_name: url components "owner/reponame", like "neicnordic/neicweb". Required.
     description: Short human understandable description of the repo. Default is ''.
     hidden: Do not advertize on first page. Default is False.  
     scope: github scope necessary to access this repo, default is 
@@ -22,8 +22,8 @@ settings.GITHUB_UPLOADER_REPOS:
         setting this empty or None disables collision check.
     media_url: url to dir where uploads will eventually end up, for showing results.
         Default is os.path.join(settings.MEDIA_URL, reponame, path).
-    static_url: url to dir where the github_uploader app for this repo serves its 
-        static files. Default is os.path.join(settings.STATIC_URL, reponame).
+    static_url: url to dir where to find the staticfiles for the github_uploader app 
+        for this repo. Default is settings.STATIC_URL.
     miniature_size: (X, Y) max size of miniatures in pixels. 0 means 
        proportionally scale to fit other dimension. (0, 0) is illegal. Default
        is (200, 0).
@@ -58,8 +58,8 @@ import json
 from github import MINIATURE_SIZE, REPOS, create_file, successful_revocation
 
 def top(request):
-    full_repoconf = dict(it for it in sorted(REPOS.items()) if not it['hidden'])
-    return render(request, 'github_uploader/top.html', dict(repos=full_repoconf))
+    full_repoconf = tuple(it for it in sorted(REPOS.items()) if not it[1]['hidden'])
+    return render(request, 'github_uploader/top.html', dict(repos=full_repoconf, STATIC_URL=settings.STATIC_URL))
 
 ### Login / logout ###
 
@@ -70,9 +70,22 @@ def make_random_state():
 
 def login_redirect(request, reponame):
     repoconf = REPOS[reponame]
+    old_access_token = request.session.pop('github_access_token', None)
+    if old_access_token:
+        request.session.pop('github_uploader_scope', None)
+        request.session.pop('github_uploader_reponame', None)
+        if not successful_revocation(old_access_token):
+            msg = mark_safe(
+                'Could not automatically revoke the old authorizations before requesting new ones. Please ' 
+                '<a href="https://github.com/settings/applications">' +
+                'review your application authorizations on GitHub</a> ' + 
+                'and manually click Revoke for any authorizations you no longer need or do not recognize.')
+            messages.warning(request, msg)
+        auth.logout(request)
     state = make_random_state()
     request.session['github_uploader_oauth_state'] = state
     request.session['github_uploader_reponame'] = reponame
+    request.session['github_uploader_scope'] = repoconf['scope']
     params = dict(
         client_id=settings.GITHUB_CLIENT_ID,
         redirect_uri=request.build_absolute_uri(reverse(authorize)),
@@ -193,7 +206,7 @@ def get_tree_url(repoconf):
 def get_tree_link(repoconf):
     return '<a href="%s">GitHub tree</a>' % get_tree_url(repoconf)
 
-def upload_file(request, context, access_token, reponame, filename, content, label):
+def upload_file(request, context, access_token, reponame, filename, content, errmsg_label):
     repoconf = REPOS[reponame]
     templates = get_templates(reponame, 'upload.html')
     response = create_file(
@@ -201,26 +214,32 @@ def upload_file(request, context, access_token, reponame, filename, content, lab
         repoconf['branch'], repoconf['path'], filename)
     if response.status_code == 404: 
         # GitHub says "not found" on perms error.
-        msg = (label +
+        msg = (errmsg_label +
             ' upload failed, possibly due to insufficient permissions. ' +
             'Please check %s, and retry after reviewing your authorizations.')
         messages.error(request, mark_safe(msg % get_tree_link(repoconf)))
         return login_redirect(request, reponame)
     if response.status_code != 201: # CREATED
-        messages.error(request, mark_safe(label + ' upload failed. Please check %s.' % get_tree_link(repoconf)))
+        messages.error(request, mark_safe(errmsg_label + ' upload failed. Please check %s.' % get_tree_link(repoconf)))
         return render(request, templates, context)
-    messages.success(request, label + ' %s successfully uploaded.' % filename)
+    messages.success(request, errmsg_label + ' %s successfully uploaded.' % filename)
     return None # on success
 
 def upload(request, reponame):
     """Media upload view; form handling logic for media uploads."""
     if not reponame in REPOS:
         raise Http404
-    if not request.user.is_authenticated():
-        return login_redirect(request, reponame)
     repoconf = REPOS[reponame]
+    current_scope = request.session.get('github_uploader_scope', None)
+    current_reponame = request.session.get('github_uploader_reponame', None)
+    if not (request.user.is_authenticated() and 
+            current_scope == repoconf['scope'] and
+            current_reponame == reponame):
+        return login_redirect(request, reponame)
+
+    context = dict(reponame=reponame, repo=repoconf)
+    templates = get_templates(reponame, 'upload.html')
     
-    context = dict(repo=repoconf)
     if repoconf['media_root']:
         existing = os.listdir(repoconf['media_root'])
         context.update(existing_json=json.dumps(existing))
@@ -230,8 +249,6 @@ def upload(request, reponame):
         form = UploadForm(request.POST, request.FILES, existing=existing, miniature_size=repoconf['miniature_size'])
         ok_to_upload = form.is_valid() 
         context['form'] = form
-
-    templates = get_templates(reponame, 'upload.html')
 
     if not ok_to_upload:
         return render(request, templates, context)
@@ -259,9 +276,13 @@ def upload(request, reponame):
 def show(request, reponame):
     if not reponame in settings.GITHUB_UPLOADER_REPOS:
         raise Http404
-    if not request.user.is_authenticated():
-        return login_redirect(request, reponame)
     repoconf = REPOS[reponame]
+    current_scope = request.session.get('github_uploader_scope', None)
+    current_reponame = request.session.get('github_uploader_reponame', None)
+    if not (request.user.is_authenticated() and 
+            current_scope == repoconf['scope'] and
+            current_reponame == reponame):
+        return login_redirect(request, reponame)
     
     templates = get_templates(reponame, 'show.html')
 
@@ -271,7 +292,9 @@ def show(request, reponame):
         github_tree_url=get_tree_url(repoconf),
         github_tree_link=get_tree_link(repoconf),
         MEDIA_URL=repoconf['media_url'],
+        STATIC_URL=repoconf['static_url'],
         repo=repoconf,
+        reponame=reponame,
         )
     
     return render(request, templates, context)

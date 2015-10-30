@@ -5,7 +5,7 @@ from django.contrib.messages import error
 import json
 import requests
 
-from .github import get_auth_info, get_repoconf, get_username, has_push_permission
+from .github import REPOS, get_auth_info, get_username, has_push_permission
 
 class GitHubOrgMemberBackend(backends.ModelBackend):
     """Github OAuth2 login handling, and org membership validation.
@@ -40,9 +40,9 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
         reponame = request_with_github_code.session.get('github_uploader_reponame', None)
         if not reponame:
             return None
-        if not reponame in settings.GITHUB_UPLOADER_REPOS[reponame]: 
+        if not reponame in REPOS: 
             return None
-        repoconf = get_repoconf(reponame)
+        repoconf = REPOS[reponame]
 
         auth_info = get_auth_info(code, saved_state)
         if not auth_info:

@@ -36,8 +36,8 @@ def get_auth_info(code, state):
     """Exchange a GitHub one-time auth code for an access token."""
     url = 'https://github.com/login/oauth/access_token'
     params = dict(
-        client_id=settings.GITHUB_CLIENT_ID,
-        client_secret=settings.GITHUB_CLIENT_SECRET,
+        client_id=settings.GITHUB_UPLOADER_CLIENT_ID,
+        client_secret=settings.GITHUB_UPLOADER_CLIENT_SECRET,
         code=code,
         state=state,
         )
@@ -113,8 +113,8 @@ def create_file(access_token, file, full_name, branch, path, filename):
 
 def revoke_access_token(token):
     gh_revoke_url = ('https://api.github.com/applications/%s/tokens/%s' % 
-        (settings.GITHUB_CLIENT_ID, token))
-    gh_auth = (settings.GITHUB_CLIENT_ID, settings.GITHUB_CLIENT_SECRET)
+        (settings.GITHUB_UPLOADER_CLIENT_ID, token))
+    gh_auth = (settings.GITHUB_UPLOADER_CLIENT_ID, settings.GITHUB_UPLOADER_CLIENT_SECRET)
     return requests.delete(gh_revoke_url, auth=gh_auth, timeout=GITHUB_TIMEOUT)
 
 def successful_revocation(token):

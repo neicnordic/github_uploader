@@ -5,7 +5,7 @@ from django.contrib.messages import error
 import json
 import requests
 
-from .github import get_auth_info, get_username, is_member
+from .github import get_auth_info, get_repoconf, get_username, has_push_permission
 
 class GitHubOrgMemberBackend(backends.ModelBackend):
     """Github OAuth2 login handling, and org membership validation.
@@ -16,7 +16,6 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
     
     Needs the following django settings:
     * GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET from GitHub application registration.
-    * GITHUB_ORGANIZATION: "login name" of github organization to authorize against. 
     
     Needs the following session variables:
     * github_oauth_state: random unique string sent to github on initial auth redirect.
@@ -33,11 +32,17 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
             return None
         if not reported_state: 
             return None
-        saved_state = request_with_github_code.session.pop('github_oauth_state', None)
+        saved_state = request_with_github_code.session.pop('github_uploader_oauth_state', None)
         if not saved_state: 
             return None
         if reported_state != saved_state:
             return None
+        reponame = request_with_github_code.session.get('github_uploader_reponame', None)
+        if not reponame:
+            return None
+        if not reponame in settings.GITHUB_UPLOADER_REPOS[reponame]: 
+            return None
+        repoconf = get_repoconf(reponame)
 
         auth_info = get_auth_info(code, saved_state)
         if not auth_info:
@@ -48,20 +53,20 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
             return None
 
         granted_scope = sorted(auth_info.get('scope', '').split(','))        
-        requested_scope = sorted(settings.GITHUB_SCOPE.split(','))
+        requested_scope = sorted(repoconf['scope'].split(','))
         if granted_scope != requested_scope:
             error(request_with_github_code, 'You did not grant all permissions needed by this service.')
             return None
 
-        # The user successfully signed in to GitHub and granted the necessary permissions.
-        # Are they members of the org?
+        # The user successfully signed in to GitHub and granted the requested scopes.
+
+        if not has_push_permission(access_token, repoconf['full_name']):
+            msg = 'You do not have push permission for repo %r: ask the repo owner to invite you.'
+            error(request_with_github_code, msg % repoconf['full_name'])
+            return None
 
         username = get_username(access_token)
         if not username:
-            return None
-        if not is_member(access_token, settings.GITHUB_ORGANIZATION):
-            msg = 'You are not a member of %s: ask your project leader or area coordinator to invite you.'
-            error(request_with_github_code, msg % settings.GITHUB_ORGANIZATION)
             return None
         
         # The user is member of the organization and is thus ok for us to let in.
@@ -74,5 +79,3 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
         request_with_github_code.session['github_access_token'] = access_token
 
         return user
-    
-        

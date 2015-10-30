@@ -19,11 +19,10 @@ urlpatterns = [
     url(r'^$', 'github_uploader.views.top'),
     
     # Login
-    url(r'^login/$', 'github_uploader.views.login'),
     url(r'^login/authorize/$', 'github_uploader.views.authorize'),
     url(r'^logout/$', 'github_uploader.views.logout'),
 
     # Uploads
-    url(r'^(?P<repo>[^/]+)/$', 'github_uploader.views.upload'),
-    url(r'^(?P<repo>[^/]+)/show/$', 'github_uploader.views.show'),
+    url(r'^(?P<reponame>[^/]+)/$', 'github_uploader.views.upload'),
+    url(r'^(?P<reponame>[^/]+)/show/$', 'github_uploader.views.show'),
 ]

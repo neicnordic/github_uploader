@@ -1,5 +1,7 @@
 # Installation specific settings.
 
+### Warning: outdated example, not reflecting the multirepo setup. See views.py for docs. 
+
 #
 # This is an example config. 
 #

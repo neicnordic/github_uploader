@@ -22,12 +22,11 @@ from local_settings import PRODUCTION
 from local_settings import DATABASES
 from local_settings import STATIC_ROOT
 from local_settings import ALLOWED_HOSTS
-from local_settings import GITHUB_UPLOADER_PATH
-from local_settings import GITHUB_UPLOADER_SCOPE
 from local_settings import GITHUB_UPLOADER_REPOS
 from local_settings import GITHUB_UPLOADER_CLIENT_ID
 from local_settings import GITHUB_UPLOADER_CLIENT_SECRET
-from local_settings import GITHUB_UPLOADER_MINIATURE_SIZE
+from local_settings import GITHUB_UPLOADER_REPO_TEMPLATE_DIRS
+from local_settings import GITHUB_UPLOADER_REPO_STATICFILES_DIRS
 from local_settings import MEDIA_ROOT
 from local_settings import SESSION_COOKIE_SECURE
 
@@ -51,7 +50,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'github_uploader.middleware.CheckAuthorization',
+    #'github_uploader.middleware.CheckAuthorization',
     'github_uploader.middleware.ExceptionLogging',
 )
 
@@ -64,7 +63,7 @@ ROOT_URLCONF = 'github_uploader.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': GITHUB_UPLOADER_REPO_TEMPLATE_DIR,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -100,9 +99,7 @@ USE_TZ = True
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/assets/int/github/'
-
-LOGIN_URL = '/int/github/login/'
-LOGOUT_URL = '/int/github/logout/'
+STATICFILES_DIRS = GITHUB_UPLOADER_REPO_STATICFILES_DIRS
 
 # Session management:
 SESSION_COOKIE_AGE = 9 * 60 * 60 # Arbitrarily chosen a bit over one working day.

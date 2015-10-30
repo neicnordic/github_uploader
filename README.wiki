@@ -1,4 +1,6 @@
 = github_uploader =
+Warning: Outdated documentation, not updated to reflect the multirepo setup.
+
 GitHub has no web GUI to let users upload binary files to repositories.
 
 This is a tiny django app that uses the GitHub API v3 and OAuth2 to let members of a GitHub 

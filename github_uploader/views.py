@@ -1,8 +1,44 @@
-import base64
-from random import SystemRandom
+"""
+Settings used:
+
+settings.GITHUB_CLIENT_ID:
+settings.GITHUB_CLIENT_SECRET:
+    Get these from your GitHub Application page. Keep them secret.
+
+settings.GITHUB_UPLOADER_REPOS:
+    Dict of reponame:repoconf:
+    reponame: most often the GitHub name of the repo.
+    
+    repoconf is dict of key:value
+    full_name: url components "user/reponame", like "neicnordic/neicweb". Required.
+    description: Short human understandable description of the repo. Default is ''.
+    hidden: Do not advertize on first page. Default is False.  
+    scope: github scope necessary to access this repo, default is 
+        settings.GITHUB_UPLOADER_SCOPE.
+    branch: branch to upload to, default is 'master'.
+    path: path to dir to upload to, default is settings.GITHUB_UPLOADER_PATH.
+    media_root: path to local copy of upload dir, for checking for collisions.
+        Default is os.path.join(settings.MEDIA_ROOT, reponame, path). Explicitly
+        setting this empty or None disables collision check.
+    media_url: url to dir where uploads will eventually end up, for showing results.
+        Default is os.path.join(settings.MEDIA_URL, reponame, path).
+    static_url: url to dir where the github_uploader app for this repo serves its 
+        static files. Default is os.path.join(settings.STATIC_URL, reponame).
+    miniature_size: (X, Y) max size of miniatures in pixels. 0 means 
+       proportionally scale to fit other dimension. (0, 0) is illegal. Default
+       is (200, 0).
+
+settings.GITHUB_UPLOADER_SCOPE:
+    Default github scope necessary to access repos. Default is 'public_repos'.  
+
+settings.GITHUB_UPLOADER_PATH
+    In-repo path to upload to. Default is 'media'. 
+
+"""
+
 import os
+from random import SystemRandom
 import re
-import requests
 import string
 from StringIO import StringIO
 
@@ -19,12 +55,11 @@ from PIL import Image
 from urllib import urlencode
 import json
 
-from decorators import require_nothing, require_login
-from github import successful_revocation
+from github import MINIATURE_SIZE, REPOS, create_file, successful_revocation
 
-@require_nothing
 def top(request):
-    return render(request, 'github_uploader/top.html')
+    full_repoconf = dict(it for it in sorted(REPOS.items()) if not it['hidden'])
+    return render(request, 'github_uploader/top.html', dict(repos=full_repoconf))
 
 ### Login / logout ###
 
@@ -33,30 +68,27 @@ def make_random_state():
     chars = string.printable.strip()
     return ''.join(r.choice(chars) for _ in range(20))
 
-@require_nothing
-def login(request):
-    if request.method == 'POST':
-        state = make_random_state()
-        request.session['github_oauth_state'] = state
-        params = dict(
-            client_id=settings.GITHUB_CLIENT_ID,
-            redirect_uri=request.build_absolute_uri(reverse(authorize)),
-            scope=settings.GITHUB_SCOPE,
-            state=state)
-        return redirect('https://github.com/login/oauth/authorize?' + urlencode(params))
-    return render(request, 'github_uploader/login.html')
+def login_redirect(request, reponame):
+    repoconf = REPOS[reponame]
+    state = make_random_state()
+    request.session['github_uploader_oauth_state'] = state
+    request.session['github_uploader_reponame'] = reponame
+    params = dict(
+        client_id=settings.GITHUB_CLIENT_ID,
+        redirect_uri=request.build_absolute_uri(reverse(authorize)),
+        scope=repoconf['scope'],
+        state=state)
+    return redirect('https://github.com/login/oauth/authorize?' + urlencode(params))
 
-@require_nothing
 def authorize(request):
     user = auth.authenticate(request_with_github_code=request)
-    if user and user.is_active:
+    if user:
         auth.login(request, user)
         messages.success(request, 'You are now logged in. Please enjoy responsibly, and log out when you are done.')
-        return redirect(upload)
+        return redirect(upload, args=(request.session.pop('github_uploader_reponame'),))
     messages.error(request, 'Login failed.')
-    return redirect(login)
+    return redirect(top)
 
-@require_nothing
 def logout(request):
     if request.method == 'POST':
         revoked = successful_revocation(request.session['github_access_token'])
@@ -76,27 +108,6 @@ def logout(request):
     return render(request, 'github_uploader/logout.html')
     
 ### Uploads ###
-
-MINIATURE_SIZE = getattr(settings, 'MINIATURE_SIZE', (200, 0))
-if MINIATURE_SIZE[0] == MINIATURE_SIZE[1] == 0:
-    raise ValueError('django.conf.settings.MINIATURE_SIZE cannot be (0, 0).')
-
-def get_repoconf(reponame):
-    # Raises Exceptions if app is misconfigured, which is desirable. We don't 
-    # want to serve requests while being misconfigured.
-    conf = settings.GITHUB_UPLOADER_REPOS[reponame]
-    conf[reponame] 
-    conf.setdefault('branch', 'master')
-    path = conf.setdefault('path', settings.GITHUB_UPLOADER_PATH)
-    conf.setdefault('media_root', os.path.join(settings.MEDIA_ROOT, reponame, path))
-    conf.setdefault('miniature_size', MINIATURE_SIZE)
-    return conf 
-
-def get_tree_url(repoconf):
-    return "https://github.com/%(repo)s/tree/%(branch)s/%(path)s" % repoconf
-
-def get_tree_link(repoconf):
-    return '<a href="%s">GitHub tree</a>' % get_tree_url(repoconf)
 
 class FilenameField(CharField):
     """A draconian filename field."""
@@ -120,8 +131,10 @@ class UploadForm(Form):
     
     def __init__(self, *args, **kw):
         existing = kw.pop('existing', [])
+        miniature_size = kw.pop('miniature_size', MINIATURE_SIZE)
         super(Form, self).__init__(*args, **kw)
         self.existing = existing or []
+        self.miniature_size = miniature_size or MINIATURE_SIZE
         
     def _assert_nonexisting(self, name):
         if name in self.existing:
@@ -150,9 +163,9 @@ class UploadForm(Form):
 
             image = Image.open(self.cleaned_data['file'])
             orig_width, orig_height = image.size
-            width, height = MINIATURE_SIZE
+            width, height = self.min
             if orig_width <= width or orig_height <= height:
-                raise ValidationError(_("Image is too small, miniatures should be at least %sx%spx." % MINIATURE_SIZE))
+                raise ValidationError(_("Image is too small, miniatures should be at least %sx%spx." % self.miniature_size))
             if width == 0:
                 width = int(float(orig_width) / orig_height * height)
             if height == 0:
@@ -169,88 +182,96 @@ class UploadForm(Form):
             
         return self.cleaned_data
 
-def do_upload(access_token, file, filename):
-    """PyGitHub does not yet support the create/update file API."""
-    
-    "PUT /repos/:owner/:repo/contents/:path"
-    url = 'https://api.github.com/repos/%s/%s/contents/%s/%s'
-    url %= (
-        settings.GITHUB_ORGANIZATION, 
-        settings.GITHUB_REPO, 
-        settings.GITHUB_PATH, 
-        filename)
-    
-    headers = dict(
-        Accept='application/json', 
-        Authorization='token ' + access_token,
-        )
-    data = dict(
-        content=base64.b64encode(file.read()),
-        message='Upload %s\n\nUploaded through media uploader service.' % filename,
-        )
-    r = requests.put(url, json.dumps(data), headers=headers)
-    return r.status_code == 201 # CREATED
+def get_templates(reponame, template_name):
+    return [
+        'github_uploader/%s/%s' % (reponame, template_name), 
+        'github_uploader/' + template_name]
 
-@require_login
+def get_tree_url(repoconf):
+    return "https://github.com/%(full_name)s/tree/%(branch)s/%(path)s" % repoconf
+
+def get_tree_link(repoconf):
+    return '<a href="%s">GitHub tree</a>' % get_tree_url(repoconf)
+
+def upload_file(request, context, access_token, reponame, filename, content, label):
+    repoconf = REPOS[reponame]
+    templates = get_templates(reponame, 'upload.html')
+    response = create_file(
+        access_token, content, repoconf['full_name'], 
+        repoconf['branch'], repoconf['path'], filename)
+    if response.status_code == 404: 
+        # GitHub says "not found" on perms error.
+        msg = (label +
+            ' upload failed, possibly due to insufficient permissions. ' +
+            'Please check %s, and retry after reviewing your authorizations.')
+        messages.error(request, mark_safe(msg % get_tree_link(repoconf)))
+        return login_redirect(request, reponame)
+    if response.status_code != 201: # CREATED
+        messages.error(request, mark_safe(label + ' upload failed. Please check %s.' % get_tree_link(repoconf)))
+        return render(request, templates, context)
+    messages.success(request, label + ' %s successfully uploaded.' % filename)
+    return None # on success
+
 def upload(request, reponame):
     """Media upload view; form handling logic for media uploads."""
-    if not reponame in settings.GITHUB_UPLOADER_REPOS:
+    if not reponame in REPOS:
         raise Http404
-    repoconf = get_repoconf(reponame)
+    if not request.user.is_authenticated():
+        return login_redirect(request, reponame)
+    repoconf = REPOS[reponame]
     
-    context = dict()
+    context = dict(repo=repoconf)
     if repoconf['media_root']:
         existing = os.listdir(repoconf['media_root'])
         context.update(existing_json=json.dumps(existing))
         
     ok_to_upload = False
     if request.method == 'POST':
-        form = UploadForm(request.POST, request.FILES)
+        form = UploadForm(request.POST, request.FILES, existing=existing, miniature_size=repoconf['miniature_size'])
         ok_to_upload = form.is_valid() 
         context['form'] = form
 
-    templates = [
-        'github_uploader/%s/upload.html' % reponame, 
-        'github_uploader/upload.html']
+    templates = get_templates(reponame, 'upload.html')
 
     if not ok_to_upload:
         return render(request, templates, context)
     
     # Ok to upload
     access_token = request.session['github_access_token']
-    f = form.cleaned_data['file']
-    filename = form.cleaned_data['filename']
-    filename_miniature = form.cleaned_data['filename_miniature']
+    success_redirect_get_params = dict(file=form.cleaned_data['filename'])
+
+    if form.cleaned_data['filename_miniature']:
+        success_redirect_get_params.update(mini=form.cleaned_data['filename_miniature'])
+        bailout_response = upload_file(
+            request, context, access_token, reponame, form.cleaned_data['filename_miniature'], 
+            form.cleaned_data['miniature'], 'Miniature file')
+        if bailout_response is not None:
+            return bailout_response
+        
+    bailout_response = upload_file(
+        request, context, access_token, reponame, form.cleaned_data['filename'], 
+        form.cleaned_data['file'], 'Miniature file')
+    if bailout_response is not None:
+        return bailout_response
     
-    params = dict(file=filename)
-    success = do_upload(access_token, f, filename)
-    if not success:
-        messages.error(request, mark_safe('File upload failed. Please check %s.' % tree_link))
-        return render(request, templates, context)
+    return redirect(reverse(show, args=(reponame,)) + '?' + urlencode(success_redirect_get_params))
 
-    messages.success(request, 'File %s successfully uploaded.' % filename)
-
-    if filename_miniature:
-        params.update(mini=filename_miniature)
-        miniature = form.cleaned_data['miniature']
-        success = do_upload(access_token, miniature, filename_miniature)
-        if not success:
-            messages.error(request, mark_safe('Miniature file upload failed. Please check %s.' % tree_link))
-            return render(request, templates, context)
-
-        messages.success(request, 'Miniature file %s successfully uploaded.' % filename_miniature)
+def show(request, reponame):
+    if not reponame in settings.GITHUB_UPLOADER_REPOS:
+        raise Http404
+    if not request.user.is_authenticated():
+        return login_redirect(request, reponame)
+    repoconf = REPOS[reponame]
     
-    return redirect(reverse(show) + '?' + urlencode(params))
+    templates = get_templates(reponame, 'show.html')
 
-
-@require_login
-def show(request):
     context = dict(
         file=request.GET.get('file', None),
         mini=request.GET.get('mini', None),
-        github_tree_url=tree_url,
-        github_tree_link=tree_link,
-        MEDIA_URL=settings.MEDIA_URL,
+        github_tree_url=get_tree_url(repoconf),
+        github_tree_link=get_tree_link(repoconf),
+        MEDIA_URL=repoconf['media_url'],
+        repo=repoconf,
         )
     
-    return render(request, 'github_uploader/show.html', context)
+    return render(request, templates, context)

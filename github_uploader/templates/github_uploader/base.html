@@ -7,11 +7,11 @@
 
 <title>{% block fulltitle %}{% if not PRODUCTION %} TESTING - {% endif %}{% block title %}{% endblock %} - NeICweb GitHub Uploader {% endblock %}</title>
 {% block styles %}
-<link media="all" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}/css/base.css">
-<link media="all" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}/css/public.css">
-<link media="all" rel="stylesheet" href="{{ STATIC_URL }}/css/all.css">
-{% if not PRODUCTION %}<link media="all" rel="stylesheet" href="{{ STATIC_URL }}/css/devel.css">{% endif %}
-<link media="all" rel="stylesheet" href="{{ STATIC_URL }}/github/uploader.css" %}">
+<link media="all" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/base.css">
+<link media="all" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/public.css">
+<link media="all" rel="stylesheet" href="{{ STATIC_URL }}css/all.css">
+{% if not PRODUCTION %}<link media="all" rel="stylesheet" href="{{ STATIC_URL }}css/devel.css">{% endif %}
+<link media="all" rel="stylesheet" href="{{ STATIC_URL }}github/uploader.css" %}">
 {% endblock %}
 {% block scripts %}
 <script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.js"></script>
@@ -20,7 +20,7 @@
 <body>
 
 <header id="header" style="padding-top: 5px;"></header>
-<section class="intro" style="background: #1c1725 url({{ STATIC_URL }}/img/{% if PRODUCTION %}bg-intro.jpg{% else %}banjo.jpg{% endif %}) repeat-x 50% 0; display: block; margin: 0 0 0px;">
+<section class="intro" style="background: #1c1725 url({{ STATIC_URL }}img/{% if PRODUCTION %}bg-intro.jpg{% else %}banjo.jpg{% endif %}) repeat-x 50% 0; display: block; margin: 0 0 0px;">
 
 <div class="account-box" style="text-align: right; height: 25px; color: white; padding: 5px 1em;">
 <a style="color:inherit;" href="{% url "github_uploader.views.top" %}">Home</a> &nbsp;

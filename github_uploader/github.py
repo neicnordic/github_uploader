@@ -12,25 +12,29 @@ MINIATURE_SIZE = getattr(settings, 'MINIATURE_SIZE', (200, 0))
 if MINIATURE_SIZE[0] == MINIATURE_SIZE[1] == 0:
     raise ValueError('django.conf.settings.MINIATURE_SIZE cannot be (0, 0).')
 
-def get_repoconf(reponame):
-    if not settings.GITHUB_UPLOADER_REPOS.get(reponame, {}).get('full_name', None):
-        raise ImproperlyConfigured('You are using the github_uploader app without having set the required full_name field for the %r repo.' % reponame)
-    conf = settings.GITHUB_UPLOADER_REPOS[reponame]
+def get_repoconf(uploadername):
+    if not settings.GITHUB_UPLOADERS.get(uploadername, {}).get('full_name', None):
+        raise ImproperlyConfigured(
+            'You are using the github_uploader app without having set the required full_name ' +
+            'field for the %r uploader in GITHUB_UPLOADERS setting.' % uploadername)
+    conf = settings.GITHUB_UPLOADERS[uploadername]
     conf.setdefault('description', '')
     conf.setdefault('hidden', False)
     conf.setdefault('scope', getattr(settings, 'GITHUB_UPLOADER_PATH', 'public_repo'))
     conf.setdefault('branch', 'master')
     path = conf.setdefault('path', getattr(settings, 'GITHUB_UPLOADER_PATH', 'media'))
-    conf.setdefault('media_root', os.path.join(settings.MEDIA_ROOT, reponame, path))
-    conf.setdefault('media_url', os.path.join(settings.MEDIA_URL, reponame, path))
+    conf.setdefault('media_root', os.path.join(settings.MEDIA_ROOT, uploadername, path))
+    conf.setdefault('media_url', os.path.join(settings.MEDIA_URL, uploadername, path))
     conf.setdefault('static_url', getattr(settings, 'STATIC_URL', ''))
     conf.setdefault('miniature_size', MINIATURE_SIZE)
     return conf 
 
-if not getattr(settings, 'GITHUB_UPLOADER_REPOS', None):
-    raise ImproperlyConfigured('You are using the github_uploader app without having set the required GITHUB_UPLOADER_REPOS setting.')
+if not getattr(settings, 'GITHUB_UPLOADERS', None):
+    raise ImproperlyConfigured(
+        'You are using the github_uploader app without having set the required ' + 
+        'GITHUB_UPLOADERS setting.')
 
-REPOS = dict((n, get_repoconf(n)) for n in settings.GITHUB_UPLOADER_REPOS)
+UPLOADERS = dict((n, get_repoconf(n)) for n in settings.GITHUB_UPLOADERS)
 
 def get_auth_info(code, state):
     """Exchange a GitHub one-time auth code for an access token."""

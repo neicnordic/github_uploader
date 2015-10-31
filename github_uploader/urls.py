@@ -23,6 +23,6 @@ urlpatterns = [
     url(r'^logout/$', 'github_uploader.views.logout'),
 
     # Uploads
-    url(r'^(?P<reponame>[^/]+)/$', 'github_uploader.views.upload'),
-    url(r'^(?P<reponame>[^/]+)/show/$', 'github_uploader.views.show'),
+    url(r'^(?P<uploadername>[^/]+)/$', 'github_uploader.views.upload'),
+    url(r'^(?P<uploadername>[^/]+)/show/$', 'github_uploader.views.show'),
 ]

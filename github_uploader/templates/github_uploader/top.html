@@ -14,10 +14,10 @@ To change, rename or delete files, you can use for example <a href="http://windo
 or command line git. If you run into trouble, any NeIC technical staff can help you do this. 
 
 
-<h2>Repositories</h2>
+<h2>Uploaders</h2>
 <div class="repolist">
-{% for reponame, repoconf in repos %}
-<dt><a href="{% url "github_uploader.views.upload" reponame %}">{{ reponame }}</a></dt>
+{% for uploadername, repoconf in uploaders %}
+<dt><a href="{% url "github_uploader.views.upload" uploadername %}">{{ uploadername }}</a></dt>
 <dd>    
     <a class="repolink" href="https://github.com/{{ repoconf.full_name }}">https://github.com/{{ repoconf.full_name }}</a><br/>
     <span class="description">{{ repoconf.description }}</span>    

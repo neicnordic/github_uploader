@@ -22,7 +22,7 @@ from local_settings import PRODUCTION
 from local_settings import DATABASES
 from local_settings import STATIC_ROOT
 from local_settings import ALLOWED_HOSTS
-from local_settings import GITHUB_UPLOADER_REPOS
+from local_settings import GITHUB_UPLOADERS
 from local_settings import GITHUB_UPLOADER_CLIENT_ID
 from local_settings import GITHUB_UPLOADER_CLIENT_SECRET
 from local_settings import EXTRA_TEMPLATE_DIRS

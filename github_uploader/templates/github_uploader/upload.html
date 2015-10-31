@@ -1,14 +1,14 @@
 {% extends "github_uploader/base.html" %}
 {% load staticfiles %}
 
-{% block title %} Upload {% endblock %}
+{% block title %} {{ uploadername }} Upload {% endblock %}
 
 {% block scripts %}{{ block.super }}
 <script type="text/javascript" src="{{ STATIC_URL}}js/remove_diacritics.js"></script>
 {% endblock %}
 
 {% block content %}
-<h1>Upload</h1>
+<h1>Upload to {{ uploadername }}</h1>
 
 <p> Select an image, give it a name, decide if it needs a miniature.
 

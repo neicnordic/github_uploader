@@ -39,8 +39,7 @@ Dict of uploadername:repoconf
 * uploadername: most often the GitHub reponame, like neicweb.
 * repoconf is a key:value dict.
 
-The keys and values of repoconf are as follows: 
-
+The keys and values of repoconf are as follows:
 * full_name: url components "owner/reponame", like "neicnordic/neicweb". '''Required'''.
 * description: Short human understandable description of the repo. Default is "".
 * hidden: Do not advertize on first page. Default is False.  
@@ -52,8 +51,9 @@ The keys and values of repoconf are as follows:
 * static_url: url to dir where to find the staticfiles for the github_uploader app for this repo. Default is STATIC_URL.
 * miniature_size: (X, Y) max size of miniatures in pixels. 0 means proportionally scale to fit other dimension. (0, 0) is illegal. Default is (200, 0).
 
-Example: 
+Example:
 
+ 
  GITHUB_UPLOADERS = {
      'neic2017': {
          'full_name': 'neicnordic/neic2017',
@@ -96,15 +96,15 @@ You can use the DIRS setting of a template engine and the STATICFILES_DIRS setti
 The uploaders use two templates: upload.html and show.html, and looks first in `github_uploader/UPLOADERNAME/` and falls back to `github_uploader/` if not found. 
 
 Example: 
-
+ 
  # DIRS=["/path/to/reskin/templates"]
  /path/to/reskin/templates/neicweb/upload.html # Custom upload template for the 'neicweb' uploader.
- 
+
 ===== STATICFILES_DIRS =====
 This is normally used to override or add more staticfiles, outside of the source tree. This can be used in conjunction with the GITHUB_UPLOADERS[...]['static_url'] setting to use the default templates with a custom set of static files.
 
 Example: 
-
+ 
  # STATICFILES_DIRS=["/path/to/reskin/static"]
  # GITHUB_UPLOADERS['neicweb']['static_url'] = '/static/neicweb/'
  /path/to/reskin/static/neicweb/* # Edited copy of default static files.

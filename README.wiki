@@ -1,17 +1,17 @@
 = github_uploader =
-Warning: Outdated documentation, not updated to reflect the multirepo setup.
-
 GitHub has no web GUI to let users upload binary files to repositories.
 
-This is a tiny django app that uses the GitHub API v3 and OAuth2 to let members of a GitHub 
-organization push binary files like images to a specific directory in a GitHub repository.
+This is a tiny django app that uses the GitHub API v3 and OAuth2 to let people push binary
+files like images to a specific directory in a GitHub repository, so long as they have push
+permissions to the repo.
 
-This app was made to provide a convenient way for non-git-savvy people to add media to the 
-NeIC jekyll website, the source of which is hosted on GitHub.
+This app was made to provide a convenient way for non-git-savvy people to add media to 
+various NeIC websites, which typically have their jekyll source hosted on GitHub.
 
 == Features ==
 * Preview of images before upload.
 * Makes miniatures of uploaded images on request.
+* Serve multiple uploaders, for different directories/different repos.
 * Does not allow delete or overwrite.
 
 == Requirements ==
@@ -25,5 +25,90 @@ NeIC jekyll website, the source of which is hosted on GitHub.
 * Create local_settings.py in a dir outside of the repo, on PYTHONPATH, inaccessible to outsiders.
 * Edit settings.py. Keep all secrets and local config to local_settings.py.
 
+== Configuration ==
+See [[github_uploader/local_settings.py.example]] for examples.
+ 
+=== New settings ===
+
+===== GITHUB_CLIENT_ID (required) =====
+===== GITHUB_CLIENT_SECRET (required) =====
+Get these from your GitHub Application page. Keep them secret.
+
+===== GITHUB_UPLOADERS (required) =====
+Dict of uploadername:repoconf
+* uploadername: most often the GitHub reponame, like neicweb.
+* repoconf is a key:value dict.
+
+The keys and values of repoconf are as follows: 
+
+* full_name: url components "owner/reponame", like "neicnordic/neicweb". '''Required'''.
+* description: Short human understandable description of the repo. Default is "".
+* hidden: Do not advertize on first page. Default is False.  
+* scope: github scope necessary to access this repo, default is GITHUB_UPLOADER_SCOPE.
+* branch: branch to upload to, default is 'master'.
+* path: path to dir to upload to, default is GITHUB_UPLOADER_PATH.
+* media_root: path to local copy of upload dir, for checking for collisions. Default is os.path.join(MEDIA_ROOT, uploadername, path). Explicitly setting this empty or None disables collision check.
+* media_url: url to dir where uploads will eventually end up, for showing results. Default is os.path.join(MEDIA_URL, uploadername, path).
+* static_url: url to dir where to find the staticfiles for the github_uploader app for this repo. Default is STATIC_URL.
+* miniature_size: (X, Y) max size of miniatures in pixels. 0 means proportionally scale to fit other dimension. (0, 0) is illegal. Default is (200, 0).
+
+Example: 
+
+ GITHUB_UPLOADERS = {
+     'neic2017': {
+         'full_name': 'neicnordic/neic2017',
+         'description': 'NeIC 2017 conference slides repository',
+         'hidden': True,
+         'media_url': 'https://neic2017.nordforsk.org/slides/',
+         'media_root': '/var/www/neic2017.nordforsk.org/html/slides/',
+         },
+         
+     # This one is not shown in the list on the first page (anyone who has the 
+     # url can still use it):
+     'neic2017': {
+         'full_name': 'neicnordic/neic2017',
+         'description': 'NeIC 2017 conference website media',
+         'hidden': True,
+         'media_url': 'https://neic2017.nordforsk.org/media/',
+         'media_root': '/var/www/neic2017.nordforsk.org/html/media/',
+         },
+         
+     # This one is reskinned using custom staticfiles:
+     'neicweb-devel': {
+         'full_name': 'neicnordic/neicweb-devel',
+         'description': 'Sandbox for NeIC website development',
+         'media_url': 'https://neic.nbi.dk:59443/media/',
+         'media_root': '/var/www/html/media/',
+         'static_url': '/static/neicweb-devel/',
+         },
+     }
+
+===== GITHUB_UPLOADER_SCOPE =====
+Default github scope necessary to access repos. Default is 'public_repos'.  
+
+===== GITHUB_UPLOADER_PATH =====
+In-repo path to upload to. Default is 'media'. 
+
+=== Useful settings ===
+You can use the DIRS setting of a template engine and the STATICFILES_DIRS setting to reskin your uploaders without changing the source tree.
+
+===== TEMPLATES[...]['DIRS'] =====
+The uploaders use two templates: upload.html and show.html, and looks first in `github_uploader/UPLOADERNAME/` and falls back to `github_uploader/` if not found. 
+
+Example: 
+
+ # DIRS=["/path/to/reskin/templates"]
+ /path/to/reskin/templates/neicweb/upload.html # Custom upload template for the 'neicweb' uploader.
+ 
+===== STATICFILES_DIRS =====
+This is normally used to override or add more staticfiles, outside of the source tree. This can be used in conjunction with the GITHUB_UPLOADERS[...]['static_url'] setting to use the default templates with a custom set of static files.
+
+Example: 
+
+ # STATICFILES_DIRS=["/path/to/reskin/static"]
+ # GITHUB_UPLOADERS['neicweb']['static_url'] = '/static/neicweb/'
+ /path/to/reskin/static/neicweb/* # Edited copy of default static files.
+
 == Further reading ==
 More info on the NeIC [https://wiki.neic.no/int/Webserver_manual internal wiki].
+

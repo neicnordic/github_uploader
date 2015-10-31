@@ -40,16 +40,16 @@ Dict of uploadername:repoconf
 * repoconf is a key:value dict.
 
 The keys and values of repoconf are as follows:
-* full_name: url components "owner/reponame", like "neicnordic/neicweb". '''Required'''.
-* description: Short human understandable description of the repo. Default is "".
-* hidden: Do not advertize on first page. Default is False.  
-* scope: github scope necessary to access this repo, default is GITHUB_UPLOADER_SCOPE.
-* branch: branch to upload to, default is 'master'.
-* path: path to dir to upload to, default is GITHUB_UPLOADER_PATH.
-* media_root: path to local copy of upload dir, for checking for collisions. Default is os.path.join(MEDIA_ROOT, uploadername, path). Explicitly setting this empty or None disables collision check.
-* media_url: url to dir where uploads will eventually end up, for showing results. Default is os.path.join(MEDIA_URL, uploadername, path).
-* static_url: url to dir where to find the staticfiles for the github_uploader app for this repo. Default is STATIC_URL.
-* miniature_size: (X, Y) max size of miniatures in pixels. 0 means proportionally scale to fit other dimension. (0, 0) is illegal. Default is (200, 0).
+* '''full_name (required)''': url components "owner/reponame", like "neicnordic/neicweb".
+* '''description''': Short human understandable description of the repo. Default is "".
+* '''hidden''': Do not advertize on first page. Default is False.  
+* '''scope''': github scope necessary to access this repo, default is GITHUB_UPLOADER_SCOPE.
+* '''branch''': branch to upload to, default is 'master'.
+* '''path''': path to dir to upload to, default is GITHUB_UPLOADER_PATH.
+* '''media_root''': path to local copy of upload dir, for checking for collisions. Default is os.path.join(MEDIA_ROOT, uploadername, path). Explicitly setting this empty or None disables collision check.
+* '''media_url''': url to dir where uploads will eventually end up, for showing results. Default is os.path.join(MEDIA_URL, uploadername, path).
+* '''static_url''': url to dir where to find the staticfiles for the github_uploader app for this repo. Default is STATIC_URL.
+* '''miniature_size''': (X, Y) max size of miniatures in pixels. 0 means proportionally scale to fit other dimension. (0, 0) is illegal. Default is (200, 0).
 
 Example:
 

@@ -267,7 +267,7 @@ def upload(request, uploadername):
         
     bailout_response = upload_file(
         request, context, access_token, uploadername, form.cleaned_data['filename'], 
-        form.cleaned_data['file'], 'Miniature file')
+        form.cleaned_data['file'], 'File')
     if bailout_response is not None:
         return bailout_response
     

@@ -1,20 +1,51 @@
 # Installation specific settings.
 
-### Warning: incomplete example. See views.py for docs. 
+### github_uploader conf:
 
-#
-# This is an example config. 
-#
-# For deployment on new systems, this file should be saved as local_settings.py 
-# in a separate directory on PYTHONPATH, where world has no access, and where 
-# the webserver can read but not write.
-#
+# From your GitHub Application page:
+GITHUB_UPLOADER_CLIENT_ID = # Typically 20 hex chars 
+GITHUB_UPLOADER_CLIENT_SECRET = # Typically 40 hex chars
 
-PRODUCTION = True
-DEBUG = False # Don't set to True on servers on the Internet.
-SECRET_KEY = # Typically 50 SystemRandom() string.printable
-ALLOWED_HOSTS = ['neic.nordforsk.org', 'neic.nbi.dk']
-ADMINS = # Put your contact info here (('Joel', 'joel@nsc.liu.se'),)
+# Serve these uploaders:
+GITHUB_UPLOADERS = {
+    'neic2017': {
+        'full_name': 'neicnordic/neic2017',
+        'description': 'NeIC 2017 conference slides repository',
+        'hidden': True,
+        'media_url': 'https://neic2017.nordforsk.org/slides/',
+        'media_root': '/var/www/neic2017.nordforsk.org/html/slides/',
+        },
+        
+    # This one is not shown in the list on the first page (anyone who has the 
+    # url can still use it):
+    'neic2017': {
+        'full_name': 'neicnordic/neic2017',
+        'description': 'NeIC 2017 conference website media',
+        'hidden': True,
+        'media_url': 'https://neic2017.nordforsk.org/media/',
+        'media_root': '/var/www/neic2017.nordforsk.org/html/media/',
+        },
+        
+    # This one is reskinned using custom staticfiles:
+    'neicweb-devel': {
+        'full_name': 'neicnordic/neicweb-devel',
+        'description': 'Sandbox for NeIC website development',
+        'media_url': 'https://neic.nbi.dk:59443/media/',
+        'media_root': '/var/www/html/media/',
+        'static_url': '/static/neicweb-devel/',
+        },
+    }
+
+EXTRA_TEMPLATE_DIRS = ['/var/www/github_uploader/reskin/templates']
+STATICFILES_DIRS = ['/var/www/github_uploader/reskin/static']
+
+
+### Standard Django stuff:
+
+PRODUCTION = False
+DEBUG = True
+SESSION_COOKIE_SECURE = False
+ALLOWED_HOSTS = ['localhost']
 
 DATABASES = {
     'default': {
@@ -23,23 +54,9 @@ DATABASES = {
     }
 }
 
-STATIC_ROOT = '/Users/joel/neicwebserver/serverdirs/static/'
-MEDIA_ROOT = '/Users/joel/neicwebserver/serverdirs/'
+STATIC_ROOT = '/var/www/github_uploader/static/'
+MEDIA_ROOT = '/var/www/github_uploader/html'
 
-GITHUB_UPLOADER_REPOS = {
-    'neicweb': {
-        'full_name': 'neicnordic/neicweb',
-        'description': 'NeIC official website',
-        },
-    'neicweb-devel': {
-        'full_name': 'neicnordic/neicweb-devel',
-        'description': 'Sandbox for NeIC website development',
-        },
-    'ahm16': {
-        'full_name': 'neicnordic/ahm16',
-        'description': 'NeIC all-hands meeting 2016',
-        },
-    }
+SECRET_KEY = # Your Django secret key; typically 50 string.printable
 
-GITHUB_UPLOADER_REPO_TEMPLATE_DIRS = []
-GITHUB_UPLOADER_REPO_STATICFILES_DIRS = []
+

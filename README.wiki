@@ -88,7 +88,7 @@ Default github scope necessary to access repos. Default is 'public_repos'.
 ===== GITHUB_UPLOADER_PATH =====
 In-repo path to upload to. Default is 'media'. 
 
-=== Useful settings ===
+=== Useful settings for reskinning individual uploaders===
 You can use the DIRS setting of a template engine and the STATICFILES_DIRS setting to reskin your uploaders without changing the source tree.
 
 ===== TEMPLATES[...]['DIRS'] =====

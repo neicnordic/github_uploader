@@ -27,9 +27,8 @@ various NeIC websites, which typically have their jekyll source hosted on GitHub
 
 == Configuration ==
 See [[github_uploader/local_settings.py.example]] for examples.
- 
-=== New settings ===
 
+=== New settings ===
 ===== GITHUB_CLIENT_ID (required) =====
 ===== GITHUB_CLIENT_SECRET (required) =====
 Get these from your GitHub Application page. Keep them secret.

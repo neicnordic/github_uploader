@@ -12,6 +12,7 @@ various NeIC websites, which typically have their jekyll source hosted on GitHub
 * Preview of images before upload.
 * Makes miniatures of uploaded images on request.
 * Serve multiple uploaders, for different directories/different repos.
+* Reskin uploaders individually.
 * Does not allow delete or overwrite.
 
 == Requirements ==

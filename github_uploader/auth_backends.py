@@ -37,12 +37,12 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
             return None
         if reported_state != saved_state:
             return None
-        reponame = request_with_github_code.session.get('github_uploader_reponame', None)
-        if not reponame:
+        uploadername = request_with_github_code.session.get('github_uploader_uploadername', None)
+        if not uploadername:
             return None
-        if not reponame in UPLOADERS: 
+        if not uploadername in UPLOADERS: 
             return None
-        repoconf = UPLOADERS[reponame]
+        repoconf = UPLOADERS[uploadername]
 
         auth_info = get_auth_info(code, saved_state)
         if not auth_info:

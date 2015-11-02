@@ -68,7 +68,7 @@ class Command(BaseCommand):
                 session.delete()
                 self.stdout.write('Non-active access token revoked for user %s.\n' % username)
                 continue
-            if session.expire_date + settings.GITHUB_REVOCATION_RETRY_PERIOD < now: 
+            if session.expire_date + settings.GITHUB_UPLOADER_REVOCATION_RETRY_PERIOD < now: 
                 session.delete()
                 self.stderr.write(
                     'Could not revoke non-active access token for user %s (status: %s). '

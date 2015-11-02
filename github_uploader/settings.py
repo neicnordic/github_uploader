@@ -100,5 +100,5 @@ USE_TZ = True
 
 # Session management:
 SESSION_COOKIE_AGE = 9 * 60 * 60 # Arbitrarily chosen a bit over one working day.
-GITHUB_REVOCATION_RETRY_PERIOD = 7 * 24 * 60 * 60 # Arbitrarily chosen to a week.
+GITHUB_UPLOADER_REVOCATION_RETRY_PERIOD = 7 * 24 * 60 * 60 # Arbitrarily chosen to a week.
 

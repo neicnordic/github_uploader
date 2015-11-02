@@ -34,9 +34,6 @@ See [[github_uploader/local_settings.py.example]] for examples.
 ===== GITHUB_CLIENT_SECRET (required) =====
 Get these from your GitHub Application page. Keep them secret.
 
-===== GITHUB_UPLOADER_REVOCATION_RETRY_PERIOD =====
-Time window in number of seconds where the clearsessions_github management command will retain an expired session that contains a user access token which it has not been able to revoke. Past this time window, the command will delete the expired session including the access token.
-
 ===== GITHUB_UPLOADERS (required) =====
 Dict of uploadername:repoconf
 * uploadername: most often the GitHub reponame, like neicweb.
@@ -91,6 +88,9 @@ Default github scope necessary to access repos. Default is 'public_repos'.
 
 ===== GITHUB_UPLOADER_PATH =====
 In-repo path to upload to. Default is 'media'. 
+
+===== GITHUB_UPLOADER_REVOCATION_RETRY_PERIOD =====
+Time window in number of seconds where the clearsessions_github management command will retain an expired session that contains a user access token which it has not been able to revoke. Past this time window, the command will delete the expired session including the access token. Default is one week.
 
 == Reskinning uploaders ==
 You can reskin uploaders by adding new templates and static files. See [[#Useful settings]] below for how to do this outside of the source tree.

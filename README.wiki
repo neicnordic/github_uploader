@@ -93,7 +93,7 @@ In-repo path to upload to. Default is 'media'.
 Time window in number of seconds where the clearsessions_github management command will retain an expired session that contains a user access token which it has not been able to revoke. Past this time window, the command will delete the expired session including the access token. Default is one week.
 
 == Reskinning uploaders ==
-You can reskin uploaders by adding new templates and static files. See [[#Useful settings]] below for how to do this outside of the source tree.
+You can reskin uploaders by adding new templates and static files. See [[#useful-settings|Useful settings]] below for how to do this outside of the source tree.
 
 === Templates ===
 To use custom templates for your uploaders you can override either:

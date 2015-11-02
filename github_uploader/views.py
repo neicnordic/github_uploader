@@ -199,13 +199,18 @@ def upload(request, uploadername):
             current_uploadername == uploadername):
         return login_redirect(request, uploadername)
 
-    context = dict(STATIC_URL=repoconf['static_url'], uploadername=uploadername, repoconf=repoconf)
     templates = get_templates(uploadername, 'upload.html')
-    
+    existing = []
     if repoconf['media_root']:
         existing = os.listdir(repoconf['media_root'])
-        context.update(existing_json=json.dumps(existing))
-        
+
+    context = dict(
+        uploadername=uploadername,
+        repoconf=repoconf,
+        existing_json=json.dumps(existing),
+        STATIC_URL=repoconf['static_url'],
+        )
+    
     ok_to_upload = False
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES, existing=existing, miniature_size=repoconf['miniature_size'])

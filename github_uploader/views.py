@@ -80,7 +80,7 @@ def logout(request):
         auth.logout(request)
         messages.success(request, 'You are now logged out.')
         return redirect(top)
-    return render(request, 'github_uploader/logout.html')
+    return render(request, 'github_uploader/logout.html', dict(STATIC_URL=settings.STATIC_URL))
     
 ### Uploads ###
 

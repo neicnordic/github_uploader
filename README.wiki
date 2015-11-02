@@ -89,7 +89,24 @@ Default github scope necessary to access repos. Default is 'public_repos'.
 ===== GITHUB_UPLOADER_PATH =====
 In-repo path to upload to. Default is 'media'. 
 
-=== Useful settings for reskinning individual uploaders===
+== Reskinning uploaders ==
+You can reskin uploaders by adding new templates and static files. See [[#Useful settings]] below for how to do this outside of the source tree.
+
+=== Templates ===
+To use custom templates for your uploaders you can override either:
+* <code>github_uploader/upload.html</code> or <code>github_uploader/show.html</code> for changing the default appearance of uploaders.
+* <code>github_uploader/UPLOADERNAME/upload.html</code> or <code>github_uploader/UPLOADERNAME/show.html</code> for changing the appearance of an individual uploader.
+
+The default templates use the context variable <code>{{ STATIC_URL }}</code> to refer to static files like css, images and javascript, which can be controlled with the 'static_url' parameter of the repoconf. Check the source code for the corresponding view functions in [[github_uploader/views.py]] to see what other context variables are available to these templates.
+
+=== Static files ===
+To use custom static files for your uploaders you can override either:
+* <code>STATIC_URL/(css,img,js)/*</code> for changing the default appearance of uploaders.
+* <code>STATIC_URL/UPLOADERNAME/(css,img,js)/*</code> in conjunction with the 'static_url' parameter of the repoconf for changing the appearance of an individual uploader.
+
+If you use custom templates for an uploader you can of course put your staticfiles anywere.
+
+=== Useful settings ===
 You can use the DIRS setting of a template engine and the STATICFILES_DIRS setting to reskin your uploaders without changing the source tree.
 
 ===== TEMPLATES[...]['DIRS'] =====

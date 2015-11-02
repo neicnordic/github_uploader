@@ -34,6 +34,9 @@ See [[github_uploader/local_settings.py.example]] for examples.
 ===== GITHUB_CLIENT_SECRET (required) =====
 Get these from your GitHub Application page. Keep them secret.
 
+===== GITHUB_UPLOADER_REVOCATION_RETRY_PERIOD =====
+Time window in number of seconds where the clearsessions_github management command will retain an expired session that contains a user access token which it has not been able to revoke. Past this time window, the command will delete the expired session including the access token.
+
 ===== GITHUB_UPLOADERS (required) =====
 Dict of uploadername:repoconf
 * uploadername: most often the GitHub reponame, like neicweb.

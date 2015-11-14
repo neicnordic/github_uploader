@@ -18,7 +18,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # local_settings.py is in a separate dir on the PYTHONPATH, away from prying eyes.
 from local_settings import SECRET_KEY
 from local_settings import DEBUG
-from local_settings import PRODUCTION
 from local_settings import DATABASES
 from local_settings import STATIC_ROOT
 from local_settings import ALLOWED_HOSTS
@@ -51,7 +50,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    #'github_uploader.middleware.CheckAuthorization',
     'github_uploader.middleware.ExceptionLogging',
 )
 
@@ -72,7 +70,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'github_uploader.context_processors.site_settings',
             ],
         },
     },
@@ -101,3 +98,36 @@ USE_TZ = True
 # Session management:
 SESSION_COOKIE_AGE = 9 * 60 * 60 # Arbitrarily chosen a bit over one working day.
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
+            },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+            },
+        },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+            },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+            },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    'loggers': {
+        'github_uploader': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'INFO',
+        }
+    }
+}

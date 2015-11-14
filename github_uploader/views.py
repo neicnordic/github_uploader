@@ -46,7 +46,7 @@ def login_redirect(request, uploadername):
                 'review your application authorizations on GitHub</a> ' + 
                 'and manually click Revoke for any authorizations you no longer need or do not recognize.')
             messages.warning(request, msg)
-            logger.warning("Could not revoke previous access token for user %s on login.", request.user.username)
+            logger.warn("Could not revoke previous access token for user %s on login.", request.user.username)
         auth.logout(request)
     state = make_random_state()
     request.session['github_uploader_oauth_state'] = state
@@ -73,6 +73,7 @@ def logout(request):
         revoked = successful_revocation(request.session['github_access_token'])
         if revoked:
             del request.session['github_access_token']
+            logger.info("User %s logged out.", request.user.username)
             messages.success(request, 'GitHub authorizations successfully revoked.')
         else:
             msg = mark_safe(
@@ -81,7 +82,7 @@ def logout(request):
                 'review your application authorizations on GitHub</a> ' 
                 'and manually click Revoke for any authorizations you no longer need or do not recognize.')
             messages.error(request, msg)
-            logger.warning("Could not revoke access token for user %s on logout.", request.user.username)
+            logger.warn("Could not revoke access token for user %s on logout.", request.user.username)
         auth.logout(request)
         messages.success(request, 'You are now logged out.')
         return redirect(top)
@@ -185,10 +186,10 @@ def upload_file(request, context, access_token, uploadername, filename, content,
             ' upload failed, possibly due to insufficient permissions. ' +
             'Please check %s, and retry after reviewing your authorizations.')
         messages.error(request, mark_safe(msg % get_tree_link(repoconf)))
-        logger.error("Upload failed with status code 404 for user %s file %r to repo %s branch %s path %s", request.user.username, filename, repoconf['full_name'], repoconf['branch'], repoconf['path'])
+        logger.warn("Upload failed with status code 404 for user %s file %r to repo %s branch %s path %s", request.user.username, filename, repoconf['full_name'], repoconf['branch'], repoconf['path'])
         return login_redirect(request, uploadername)
     if response.status_code != 201: # CREATED
-        logger.error("Upload failed with status code %s for user %s file %r to repo %s branch %s path %s", response.status_code, request.user.username, filename, repoconf['full_name'], repoconf['branch'], repoconf['path'])
+        logger.warn("Upload failed with status code %s for user %s file %r to repo %s branch %s path %s", response.status_code, request.user.username, filename, repoconf['full_name'], repoconf['branch'], repoconf['path'])
         messages.error(request, mark_safe(errmsg_label + ' upload failed. Please check %s.' % get_tree_link(repoconf)))
         return render(request, templates, context)
     logger.info("User %s uploaded file %r to repo %s branch %s path %s", request.user.username, filename, repoconf['full_name'], repoconf['branch'], repoconf['path'])

@@ -62,20 +62,20 @@ class GitHubOrgMemberBackend(backends.ModelBackend):
             logger.critical('Cannot authorize github user for uploader %s. Access token message from github was not in the expected format.', uploadername)
             return None
 
-        granted_scope = ','.join(sorted(auth_info.get('scope', '').split(',')))        
-        requested_scope = ','.join(sorted(repoconf['scope'].split(',')))
-        if granted_scope != requested_scope:
-            logger.error('Cannot authorize github user for uploader %s. User granted scope %r does not match requested scope %r.', uploadername, granted_scope, requested_scope)
-            error(request_with_github_code, 'You did not grant all permissions needed by this service.')
-            return None
-
-        # The user successfully signed in to GitHub and granted the requested scopes.
-
         username = get_username(access_token)
         if not username:
             logger.critical('Cannot authorize github user for uploader %s. Username message from github was not in the expected format.', uploadername)
             return None
         
+        granted_scope = ','.join(sorted(auth_info.get('scope', '').split(',')))        
+        requested_scope = ','.join(sorted(repoconf['scope'].split(',')))
+        if granted_scope != requested_scope:
+            logger.error('Cannot authorize github user %s for uploader %s. User granted scope %r does not match requested scope %r.', username, uploadername, granted_scope, requested_scope)
+            error(request_with_github_code, 'You did not grant all permissions needed by this service.')
+            return None
+
+        # The user successfully signed in to GitHub and granted the requested scopes.
+
         if not has_push_permission(access_token, repoconf['full_name']):
             logger.error('Cannot authorize github user %r for uploader %s. User does not have push privileges to the %s repository.', username, uploadername, repoconf['full_name'])
             msg = 'You do not have push permission for repo %r: ask the repo owner to invite you.'

@@ -62,7 +62,7 @@ This page uses javascript to refresh automatically.
 <script>
 function imgError(image) {
     setTimeout(function (){
-        image.src += '?' + new Date;
+        image.src = image.src;
      }, 5000);
 }
 </script>

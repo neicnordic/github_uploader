@@ -96,7 +96,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 # Session management:
-SESSION_COOKIE_AGE = 9 * 60 * 60 # Arbitrarily chosen a bit over one working day.
+SESSION_COOKIE_AGE = 60 * 60 # Arbitrarily chosen to one hour idle time.
 
 LOGGING = {
     'version': 1,

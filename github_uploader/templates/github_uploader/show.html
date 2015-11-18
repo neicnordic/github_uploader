@@ -53,17 +53,20 @@ This page uses javascript to refresh automatically.
 
 {% if mini %}
 <p>Miniature: {{ MEDIA_URL }}{{ mini }}
-<p><img src={{ MEDIA_URL }}{{ mini }} onerror='imgError(this);'>
+<p><img src={{ MEDIA_URL }}{{ mini }} onerror='imgError(this);' data-retry="1000">
 {% endif %}
 
 <p>File: {{ MEDIA_URL }}{{ file }}
-<p><img src={{ MEDIA_URL }}{{ file }} onerror='imgError(this);'>
+<p><img src={{ MEDIA_URL }}{{ file }} onerror='imgError(this);' data-retry="1000">
 
 <script>
-function imgError(image) {
-    setTimeout(function (){
-        image.src = image.src;
-     }, 5000);
+function imgError(image, retry) {
+  var scaling = 1.5;
+  var timeout = $(image).data("retry");
+  $(image).data("retry", timeout * scaling)
+  setTimeout(function () {
+    image.src = image.src;
+  }, timeout);
 }
 </script>
 

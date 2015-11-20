@@ -18,6 +18,10 @@
 To change, rename or delete files, you can use for example <a href="http://windows.github.com/">GitHub for Windows</a> 
 or command line git. If you run into trouble any NeIC technical staff can help you solve it. 
 
+<p>Also, we cannot automatically make minatures for SVG images due to limitations in django/Pillow. 
+You can of course always make SVG miniatures yourself and upload them separately. Most other image formats
+work just fine though.
+ 
 <p>{{ form.non_field_errors }}
 
 <form id="uploader_form" method="POST" enctype="multipart/form-data">
@@ -116,7 +120,7 @@ Size:
                     $('#height').text(this.height);
                     $('#fullsize').attr('src', image.src);
                     $('#fullsize').css('display', 'inline');
-                    if (this.width * this.height > max_pixels || filesize > max_bytes) {
+                    if (parts.ext != 'svg' && (this.width * this.height > max_pixels || filesize > max_bytes)) {
                         $('#mini').attr('src', this.src);
                         $('#mini').css('display', 'inline');
                         $('#make_mini').prop('checked', true);

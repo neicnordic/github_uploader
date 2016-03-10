@@ -1,5 +1,9 @@
-= github_uploader =
-GitHub has no web GUI to let users upload binary files to repositories.
+= Obsoletion notice =
+This software was written when GitHub had no web GUI to let users upload binary files to repositories.
+
+Now GitHub has such a GUI, which makes this software obsolete.
+
+= Old docs =
 
 This is a tiny django app that uses the GitHub API v3 and OAuth2 to let people push binary
 files like images to a specific directory in a GitHub repository, so long as they have push
